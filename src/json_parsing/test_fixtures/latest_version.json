@@ -1,0 +1,22 @@
+[
+    {
+        "id": 123,
+        "short_version": "7.41.3",
+        "version": "10167",
+        "uploaded_at": "2019-05-15T12:40:15.000Z",
+        "enabled": true,
+        "destinations": [
+            {
+                "id": "123456789",
+                "name": "A user group",
+                "destination_type": "group"
+            }
+        ],
+        "distribution_groups": [
+            {
+                "id": "123456789",
+                "name": "A user group"
+            }
+        ]
+    }
+]
