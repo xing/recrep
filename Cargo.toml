@@ -8,7 +8,7 @@ edition = "2018"
 
 # A full featured, fast Command Line Argument Parser for Rust
 # https://github.com/clap-rs/clap
-clap = {version = "~2.32.0", features = ["yaml"]}
+clap = { version = "~2.32.0", features = ["yaml"]}
 
 # Strongly typed JSON library for Rust
 # https://github.com/serde-rs/json
