@@ -1,0 +1,39 @@
+{
+  "nextLink": "/api/v0.1/apps/XING-SE-Organization/XING/errors/errorGroups?version=7.41.3&start=2019-05-15&end=2019-05-20&$orderby=count%20desc&$top=30&$token=123456789",
+  "errorGroups": [
+    {
+      "errorGroupId": "92620314u",
+      "appVersion": "7.41.3",
+      "appBuild": "10167",
+      "count": 15,
+      "deviceCount": 14,
+      "firstOccurrence": "2019-05-16T20:26:39Z",
+      "lastOccurrence": "2019-05-19T22:22:29Z",
+      "exceptionType": "SIGSEGV",
+      "exceptionMessage": "Selector name found in current argument registers: delegate",
+      "exceptionClassMethod": false,
+      "exceptionMethod": "XNGFeed.FeedViewController.(showComboxEntryView in _494CFAE549D032F287E30AAB63618902)() -> ()",
+      "exceptionAppCode": true,
+      "exceptionFile": "FeedViewController.swift",
+      "codeRaw": "XNGFeed.FeedViewController.(showComboxEntryView in _494CFAE549D032F287E30AAB63618902)() -> ()",
+      "state": "Open"
+    },
+    {
+      "errorGroupId": "1549869227u",
+      "appVersion": "7.41.3",
+      "appBuild": "10167",
+      "count": 10,
+      "deviceCount": 4,
+      "firstOccurrence": "2019-05-16T14:27:15Z",
+      "lastOccurrence": "2019-05-17T10:10:33Z",
+      "exceptionType": "NSInvalidArgumentException",
+      "exceptionMessage": "*** -[__NSArrayM insertObject:atIndex:]: object cannot be nil",
+      "exceptionClassName": "BITPLCrashReportMachExceptionInfo",
+      "exceptionClassMethod": false,
+      "exceptionMethod": "codes",
+      "exceptionAppCode": true,
+      "codeRaw": "-[BITPLCrashReportMachExceptionInfo codes]",
+      "state": "Open"
+    }
+  ]
+}
