@@ -62,8 +62,6 @@ You can execute all tests by running `cargo test`.
 
 ## Build
 
-The Jenkins pipelines which use the build are located in the [mobile-releases/crash-reports]([crash-reports](https://source.xing.com/mobile-releases/crash-reports)) repository. Since those jobs run on Linux nodes we need to cross compile for Linux. There is no automatic deploymentbuild process yet, hence we have to do it by hand:
-
 [muslrust](https://github.com/clux/muslrust) allows us to build Rust binaries using the [musl](https://www.musl-libc.org) toolchain.
 
 - muslrust is dockerized, so start Docker
