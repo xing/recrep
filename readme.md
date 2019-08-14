@@ -64,7 +64,7 @@ You can execute all tests by running `cargo test`.
 
 [muslrust](https://github.com/clux/muslrust) allows us to build Rust binaries using the [musl](https://www.musl-libc.org) toolchain, which is nice if you want to cross-compile for Linux.
 
-- muslrust is dockerized, so start Docker
+- muslrust is dockerized, so start [Docker](https://www.docker.com)
 - build the app:
 
 ```bash
