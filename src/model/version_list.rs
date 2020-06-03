@@ -3,12 +3,12 @@ pub struct VersionList {}
 
 impl VersionList {
     pub fn latest_version(versions: Vec<Version>) -> Option<Version> {
-        let mut sorted_versions = VersionList::sort_versions(versions);
+        let sorted_versions = VersionList::sort_versions(versions);
         sorted_versions.first().map(|v| v.clone())
     }
 
     pub fn latest_version_of_distribution_group(versions: Vec<Version>, distribution_group: String) -> Option<Version> {
-        let mut sorted_versions = VersionList::sort_versions(versions);
+        let sorted_versions = VersionList::sort_versions(versions);
 
         for version in sorted_versions.iter() {
             match &version.distribution_groups {
