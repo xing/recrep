@@ -20,6 +20,7 @@ pub struct CrashReporter {
     organization: String,
     application: String,
     version: Option<String>,
+    distribution_group: Option<String>,
     file_writer: &'static dyn Writing,
     printer: &'static dyn Printing,
 }
@@ -40,6 +41,7 @@ impl CrashReporter {
         organization: &str,
         application: &str,
         version: Option<String>,
+        distribution_group: Option<&str>,
     ) -> CrashReporter {
         CrashReporter {
             token: token.to_string(),
@@ -48,6 +50,7 @@ impl CrashReporter {
             version: version.map(|s| s.to_string()),
             file_writer: &FileWriter {},
             printer: &StdOutPrinter {},
+            distribution_group: distribution_group.map(|s| s.to_string()),
         }
     }
 
@@ -157,6 +160,7 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
             self.organization.as_str(),
             self.application.as_str(),
             self.version.clone(),
+            self.distribution_group.clone(),
         )
     }
 }

@@ -29,6 +29,7 @@ impl CrashManager {
         organization: &str,
         application: &str,
         version: Option<String>,
+        distribution_group: Option<String>,
     ) -> Result<Report, &'static str> {
         match version {
             Some(version) => self.crash_list_for_version(
@@ -41,6 +42,7 @@ impl CrashManager {
                 api,
                 organization.to_string(),
                 application.to_string(),
+                distribution_group,
             ),
         }
     }
@@ -67,12 +69,18 @@ impl CrashManager {
         api: &impl API,
         organization: String,
         application: String,
+        distribution_group: Option<String>,
     ) -> Result<Report, &'static str> {
         let latest_version_json = api
             .latest_version(organization.to_string(), application.to_string())
             .expect("Missing version json.");
         let versions = VersionListParser::versions(&latest_version_json).unwrap();
-        let latest_version = VersionList::latest_version(versions);
+        let mut latest_version;
+        match distribution_group {
+            Some(group) => latest_version = VersionList::latest_version_of_distribution_group(versions, group),
+            None        => latest_version = VersionList::latest_version(versions)
+        };
+
         match latest_version {
             Some(latest_version) => self.crash_list_for_version(
                 api,
