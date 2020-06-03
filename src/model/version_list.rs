@@ -3,10 +3,35 @@ pub struct VersionList {}
 
 impl VersionList {
     pub fn latest_version(versions: Vec<Version>) -> Option<Version> {
-        let mut sorted_versions = versions.to_vec();
-        sorted_versions.sort_by(|a, b| b.uploaded_at.cmp(&a.uploaded_at));
+        let mut sorted_versions = VersionList::sort_versions(versions);
         sorted_versions.first().map(|v| v.clone())
     }
+
+    pub fn latest_version_of_distribution_group(versions: Vec<Version>, distribution_group: String) -> Option<Version> {
+        let mut sorted_versions = VersionList::sort_versions(versions);
+
+        for version in sorted_versions.iter() {
+            match &version.distribution_groups {
+                Some(groups) => {
+                    for group in groups.iter() {
+                        if group.name == distribution_group {
+                            return Some(version.clone());
+                        }
+                    }
+                }
+                None => return None
+            }
+        }
+
+        return None;
+    }
+
+    fn sort_versions(versions: Vec<Version>) -> Vec<Version> {
+        let mut sorted_versions = versions.to_vec();
+        sorted_versions.sort_by(|a, b| b.uploaded_at.cmp(&a.uploaded_at));
+        return sorted_versions;
+    }   
+
 }
 
 #[cfg(test)]

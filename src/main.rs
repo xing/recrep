@@ -13,9 +13,10 @@ fn main() {
     let outfile = matches.value_of("outfile");
     let organization = matches.value_of("organization").unwrap();
     let application = matches.value_of("application").unwrap();
+    let distribution_group = matches.value_of("distribution-group");
 
     let v = version.map(|s| s.to_string());
-    let crash_reporter = CrashReporter::with_token(token, organization, application, v);
+    let crash_reporter = CrashReporter::with_token(token, organization, application, v, distribution_group);
     crash_reporter.create_report(outfile);
 }
 
@@ -58,6 +59,12 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .takes_value(true)
             .short("o")
             .long("outfile")
+            .required(false),
+        Arg::with_name("distribution-group")
+            .help("Distribution group used to search for the latest version released into this distribution group")
+            .takes_value(true)
+            .short("g")
+            .long("group")
             .required(false),
     ])
     .get_matches()
