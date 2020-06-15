@@ -41,7 +41,7 @@ impl CrashReporter {
         organization: &str,
         application: &str,
         version: Option<String>,
-        distribution_group: Option<&str>,
+        distribution_group: Option<String>,
     ) -> CrashReporter {
         CrashReporter {
             token: token.to_string(),
@@ -50,7 +50,7 @@ impl CrashReporter {
             version: version.map(|s| s.to_string()),
             file_writer: &FileWriter {},
             printer: &StdOutPrinter {},
-            distribution_group: distribution_group.map(|s| s.to_string()),
+            distribution_group: distribution_group,
         }
     }
 

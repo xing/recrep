@@ -16,7 +16,8 @@ fn main() {
     let distribution_group = matches.value_of("distribution-group");
 
     let v = version.map(|s| s.to_string());
-    let crash_reporter = CrashReporter::with_token(token, organization, application, v, distribution_group);
+    let group  = distribution_group.map(|s| s.to_string());
+    let crash_reporter = CrashReporter::with_token(token, organization, application, v, group);
     crash_reporter.create_report(outfile);
 }
 
