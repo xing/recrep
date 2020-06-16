@@ -77,7 +77,7 @@ impl CrashManager {
         let versions = VersionListParser::versions(&latest_version_json).unwrap();
         let latest_version = match distribution_group {
             Some(group) => VersionList::latest_version_of_distribution_group(versions, group),
-            None        => VersionList::latest_version(versions)
+            None => VersionList::latest_version(versions),
         };
 
         match latest_version {
