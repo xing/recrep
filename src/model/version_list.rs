@@ -37,9 +37,9 @@ mod tests {
 
     #[test]
     fn correct_sorting_of_version_list() {
-        let version1 = Version { short_version: String::from("1.0"), uploaded_at: String::from("2019-11-16T22:29:48.000Z") };
-        let version2 = Version { short_version: String::from("1.0"), uploaded_at: String::from("2019-11-17T22:29:48.000Z") };
-        let version3 = Version { short_version: String::from("1.0"), uploaded_at: String::from("2019-11-18T22:29:48.000Z") };
+        let version1 = Version { short_version: String::from("1.0"), uploaded_at: String::from("2019-11-16T22:29:48.000Z"), distribution_groups: None};
+        let version2 = Version { short_version: String::from("1.0"), uploaded_at: String::from("2019-11-17T22:29:48.000Z"), distribution_groups: None};
+        let version3 = Version { short_version: String::from("1.0"), uploaded_at: String::from("2019-11-18T22:29:48.000Z"), distribution_groups: None};
         let mut vec = Vec::new();
 
         vec.push(version1);

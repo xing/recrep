@@ -32,7 +32,8 @@ impl CrashReporter {
     ///```
     /// use recrep::CrashReporter;
     ///
-    /// let reporter = CrashReporter::with_token("abc", "org", "app", Some("1.2.3".to_string()));
+    /// let reporter = CrashReporter::with_token("abc", "org", "app", Some("1.2.3".to_string()),
+    /// None);
     ///
     /// assert_eq!("abc", reporter.token);
     /// ```
@@ -69,7 +70,7 @@ impl CrashReporter {
     /// # use recrep::model::Report;
     /// #
     /// # let crash_list = TestHelper::crash_list_from_json("src/json_parsing/test_fixtures/two_crashes.json");
-    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None);
+    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None);
     /// let report = Report::new("version".to_string(), crash_list);
     /// reporter.report(report, None)
     /// ```
@@ -89,7 +90,7 @@ impl CrashReporter {
     /// # use recrep::utils::test_helper::TestHelper;
     /// # use recrep::CrashReporter;
     /// #
-    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None);
+    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None);
     /// let report = TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let formatted_report = reporter.format_report(report);
     /// assert_eq!(formatted_report.chars().count(), 1100)
