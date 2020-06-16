@@ -57,6 +57,7 @@ mod tests {
             uploaded_at: String::from("2019-11-18T22:29:48.000Z"),
             distribution_groups: None,
         };
+
         let vec = vec![version1, version2, version3];
 
         let latest = VersionList::latest_version(vec);
