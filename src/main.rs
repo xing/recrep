@@ -11,13 +11,13 @@ fn main() {
     let token = matches.value_of("token").expect("Token is required.");
     let version = matches.value_of("version");
     let outfile = matches.value_of("outfile");
-    let organization = matches.value_of("organization").unwrap();
-    let application = matches.value_of("application").unwrap();
+    let organization = matches.value_of("organization").expect("Organization is required");
+    let application = matches.value_of("application").expect("Application is required");
     let distribution_group = matches.value_of("distribution-group");
 
-    let v = version.map(|s| s.to_string());
-    let group  = distribution_group.map(|s| s.to_string());
-    let crash_reporter = CrashReporter::with_token(token, organization, application, v, group);
+    let version = version.map(String::from);
+    let group  = distribution_group.map(String::from);
+    let crash_reporter = CrashReporter::with_token(token, organization, application, version, group);
     crash_reporter.create_report(outfile);
 }
 
