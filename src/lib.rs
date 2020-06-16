@@ -33,7 +33,7 @@ impl CrashReporter {
     /// use recrep::CrashReporter;
     ///
     /// let reporter = CrashReporter::with_token("abc", "org", "app", Some("1.2.3".to_string()),
-    /// None);
+    /// Some("My-Distribution-Group".to_string()));
     ///
     /// assert_eq!("abc", reporter.token);
     /// ```
