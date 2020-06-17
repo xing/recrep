@@ -1,4 +1,4 @@
-use crate::model::version::{Version, DistributionGroup};
+use crate::model::version::{DistributionGroup, Version};
 pub struct VersionList {}
 
 impl VersionList {
@@ -14,16 +14,25 @@ impl VersionList {
 
         let group_version = sorted_versions
             .iter()
-            .filter(|version| VersionList::by_distribution_group(&distribution_group,
-                                                                 version.distribution_groups.as_ref()))
+            .filter(|version| {
+                VersionList::by_distribution_group(
+                    &distribution_group,
+                    version.distribution_groups.as_ref(),
+                )
+            })
             .next();
 
         return group_version.cloned();
     }
 
-    fn by_distribution_group(distribution_group: &String, distribution_groups: Option<&Vec<DistributionGroup>>) -> bool {
+    fn by_distribution_group(
+        distribution_group: &String,
+        distribution_groups: Option<&Vec<DistributionGroup>>,
+    ) -> bool {
         match distribution_groups {
-            Some(groups) => groups.iter().any(|group| group.name == distribution_group.to_string()),
+            Some(groups) => groups
+                .iter()
+                .any(|group| group.name == distribution_group.to_string()),
             None => false,
         }
     }
@@ -66,10 +75,9 @@ mod tests {
             None => panic!("There was no latest version in the returned sorted list"),
         }
     }
-    
+
     #[test]
     fn correct_version_when_filtering_by_distribution_group() {
-
         let distribution_group_name = "Test distribution group";
 
         let irrelevant_group = DistributionGroup {
@@ -103,18 +111,22 @@ mod tests {
 
         let vec = vec![version1, version2, version3];
 
-        let found_version = VersionList::latest_version_of_distribution_group(vec, distribution_group_name.to_string());
+        let found_version = VersionList::latest_version_of_distribution_group(
+            vec,
+            distribution_group_name.to_string(),
+        );
+
         match found_version {
-            Some(found_version) => {
-                assert_eq!(found_version.short_version, String::from(expected_version_string))
-            }
+            Some(found_version) => assert_eq!(
+                found_version.short_version,
+                String::from(expected_version_string)
+            ),
             None => panic!("There was no latest version in the returned sorted list"),
         }
     }
 
     #[test]
     fn dont_find_version_when_filtering_by_distribution_group() {
-
         let distribution_group_name = "Test distribution group";
         let other_distribution_group_name = "Another distribution group";
 
@@ -142,12 +154,16 @@ mod tests {
 
         let vec = vec![version1, version2, version3];
 
-        let found_version = VersionList::latest_version_of_distribution_group(vec, distribution_group_name.to_string());
+        let found_version = VersionList::latest_version_of_distribution_group(
+            vec,
+            distribution_group_name.to_string(),
+        );
+
         match found_version {
             Some(_found_version) => {
                 panic!("Should not find any version");
             }
-            None => ()
+            None => (),
         }
     }
 }
