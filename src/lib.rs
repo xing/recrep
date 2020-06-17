@@ -20,8 +20,8 @@ pub struct CrashReporter {
     organization: String,
     application: String,
     version: Option<String>,
-    file_writer: &'static Writing,
-    printer: &'static Printing,
+    file_writer: &'static dyn Writing,
+    printer: &'static dyn Printing,
 }
 
 impl CrashReporter {
