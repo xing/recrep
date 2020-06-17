@@ -12,22 +12,20 @@ impl VersionList {
     ) -> Option<Version> {
         let sorted_versions = VersionList::sort_versions(versions);
 
-        for version in sorted_versions {
-            match &version.distribution_groups {
-                Some(groups) => {
-                    if groups
-                        .iter()
-                        .find(|group| group.name == distribution_group)
-                        .is_some()
-                    {
-                        return Some(version.clone());
-                    }
-                }
-                None => return None,
-            }
-        }
+        let group_version = sorted_versions
+            .iter()
+            .filter(|version| VersionList::by_distribution_group(&distribution_group,
+                                                                 version.distribution_groups.as_ref()))
+            .next();
 
-        None
+        return group_version.cloned();
+    }
+
+    fn by_distribution_group(distribution_group: &String, distribution_groups: Option<&Vec<DistributionGroup>>) -> bool {
+        match distribution_groups {
+            Some(groups) => groups.iter().any(|group| group.name == distribution_group.to_string()),
+            None => false,
+        }
     }
 
     fn sort_versions(mut versions: Vec<Version>) -> Vec<Version> {
@@ -119,10 +117,6 @@ mod tests {
 
         let distribution_group_name = "Test distribution group";
         let other_distribution_group_name = "Another distribution group";
-        let relevant_group = DistributionGroup {
-            id: String::from("irrelevant_ID"),
-            name: String::from(distribution_group_name),
-        };
 
         let group = DistributionGroup {
             id: String::from("irrelevant_ID"),
