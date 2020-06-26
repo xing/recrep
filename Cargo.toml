@@ -22,3 +22,13 @@ reqwest = "~0.9.12"
 # Rust templating with Handlebars
 # https://github.com/sunng87/handlebars-rust
 handlebars = "~1.1.0"
+
+# Chrono: Date and Time for Rust
+# https://github.com/chronotope/chrono
+chrono = "~0.4"
+
+[dev-dependencies]
+
+# Regex: An implementation of regular expressions for Rust
+# https://github.com/rust-lang/regex
+regex = "~1.0"

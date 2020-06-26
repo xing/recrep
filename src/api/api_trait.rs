@@ -23,5 +23,6 @@ pub trait API {
         organization: String,
         application: String,
         version: String,
+        start_date: String,
     ) -> Result<String, &'static str>;
 }

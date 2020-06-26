@@ -45,6 +45,7 @@ impl API for MockAPI {
         _organization: String,
         _application: String,
         _version: String,
+        _start_date: String,
     ) -> Result<String, &'static str> {
         match self.crashes.clone() {
             Some(json) => Ok(json),

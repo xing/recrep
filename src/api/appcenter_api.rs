@@ -52,8 +52,9 @@ impl API for AppCenter {
         organization: String,
         application: String,
         version: String,
+        start_date: String,
     ) -> Result<String, &'static str> {
-        let url = format!("https://api.appcenter.ms/{}/apps/{}/{}/errors/errorGroups?version={}&%24orderby=count%20desc&%24top=20", API_VERSION, organization, application, version);
+        let url = format!("https://api.appcenter.ms/{}/apps/{}/{}/errors/errorGroups?start={}&%24version={}&%24orderby=count%20desc&%24top=20", API_VERSION, organization, application, start_date, version);
         let response = self
             .client
             .get(&url)

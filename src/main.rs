@@ -14,10 +14,13 @@ fn main() {
     let organization = matches.value_of("organization").expect("Organization is required");
     let application = matches.value_of("application").expect("Application is required");
     let distribution_group = matches.value_of("distribution-group");
+    let start_date = matches.value_of("start-date");
 
     let version = version.map(String::from);
-    let group  = distribution_group.map(String::from);
-    let crash_reporter = CrashReporter::with_token(token, organization, application, version, group);
+    let group = distribution_group.map(String::from);
+    let start_date = start_date.map(String::from);
+    let crash_reporter =
+        CrashReporter::with_token(token, organization, application, version, group, start_date);
     crash_reporter.create_report(outfile);
 }
 
@@ -66,6 +69,12 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .takes_value(true)
             .short("g")
             .long("group")
+            .required(false),
+        Arg::with_name("from")
+            .help("The start date from when crashes should be included in the report.")
+            .takes_value(true)
+            .short("f")
+            .long("from")
             .required(false),
     ])
     .get_matches()
