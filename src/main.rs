@@ -65,7 +65,7 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .long("outfile")
             .required(false),
         Arg::with_name("distribution-group")
-            .help("Distribution group used to search for the latest version released into this distribution group")
+            .help("Distribution group used to search for the latest version released into this distribution group.")
             .takes_value(true)
             .short("g")
             .long("group")

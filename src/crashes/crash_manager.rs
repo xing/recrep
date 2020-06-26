@@ -19,7 +19,7 @@ impl CrashManager {
     /// #
     /// // api is a mock that returns 2 crashes
     /// let manager = CrashManager{};
-    /// let report = manager.crash_list(&api, "org", "app", Some("1.2.3".to_string()), None).unwrap();
+    /// let report = manager.crash_list(&api, "org", "app", Some("1.2.3".to_string()), None, None).unwrap();
     ///
     /// assert_eq!(report.crash_list.crashes.len(), 2);
     /// assert_eq!(report.version, "1.2.3");
