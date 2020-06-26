@@ -115,3 +115,21 @@ impl CrashManager {
         }
     }
 }
+
+#[test]
+fn test_default_start_date() {
+    use regex::Regex;
+    let re = Regex::new(r"^\d{4}-\d{2}-\d{2}$").unwrap();
+    let crash_manager = CrashManager {};
+    assert!(re.is_match(crash_manager.default_start_date().as_str()));
+}
+
+#[test]
+fn test_date_string_from_date() {
+    use chrono::{NaiveDate, NaiveDateTime};
+
+    let crash_manager = CrashManager {};
+    let naive_date_time: NaiveDateTime = NaiveDate::from_ymd(2019, 7, 25).and_hms(8, 47, 0);
+    let date = DateTime::<Utc>::from_utc(naive_date_time, Utc);
+    assert_eq!("2019-07-25", crash_manager.date_string_from_date(date))
+}
