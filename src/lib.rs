@@ -21,6 +21,7 @@ pub struct CrashReporter {
     application: String,
     version: Option<String>,
     distribution_group: Option<String>,
+    threshhold: Option<String>,
     file_writer: &'static dyn Writing,
     printer: &'static dyn Printing,
 }
@@ -43,6 +44,7 @@ impl CrashReporter {
         application: &str,
         version: Option<String>,
         distribution_group: Option<String>,
+        threshhold: Option<String>,
     ) -> CrashReporter {
         CrashReporter {
             token: token.to_string(),
@@ -52,6 +54,7 @@ impl CrashReporter {
             file_writer: &FileWriter {},
             printer: &StdOutPrinter {},
             distribution_group: distribution_group,
+            threshhold: threshhold,
         }
     }
 
