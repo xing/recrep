@@ -14,10 +14,12 @@ fn main() {
     let organization = matches.value_of("organization").expect("Organization is required");
     let application = matches.value_of("application").expect("Application is required");
     let distribution_group = matches.value_of("distribution-group");
+    let crash_threshhold = matches.value_of("threshhold");
 
     let version = version.map(String::from);
     let group  = distribution_group.map(String::from);
-    let crash_reporter = CrashReporter::with_token(token, organization, application, version, group);
+    let crash_threshhold = crash_threshhold.map(String::from);
+    let crash_reporter = CrashReporter::with_token(token, organization, application, version, group, crash_threshhold);
     crash_reporter.create_report(outfile);
 }
 
@@ -62,10 +64,16 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .long("outfile")
             .required(false),
         Arg::with_name("distribution-group")
-            .help("Distribution group used to search for the latest version released into this distribution group")
+            .help("Distribution group used to search for the latest version released into this distribution group.")
             .takes_value(true)
             .short("g")
             .long("group")
+            .required(false),
+        Arg::with_name("threshhold")
+            .help("Set a threshhold value determining a maximum amount of crashes and show a percentage of how many percent are reached.")
+            .takes_value(true)
+            .short("m")
+            .long("threshhold")
             .required(false),
     ])
     .get_matches()
