@@ -21,7 +21,7 @@ pub struct CrashReporter {
     application: String,
     version: Option<String>,
     distribution_group: Option<String>,
-    threshhold: Option<String>,
+    threshold: Option<u64>,
     file_writer: &'static dyn Writing,
     printer: &'static dyn Printing,
 }
@@ -44,7 +44,7 @@ impl CrashReporter {
         application: &str,
         version: Option<String>,
         distribution_group: Option<String>,
-        threshhold: Option<String>,
+        threshold: Option<u64>,
     ) -> CrashReporter {
         CrashReporter {
             token: token.to_string(),
@@ -54,13 +54,13 @@ impl CrashReporter {
             file_writer: &FileWriter {},
             printer: &StdOutPrinter {},
             distribution_group: distribution_group,
-            threshhold: threshhold,
+            threshold: threshold,
         }
     }
 
     pub fn create_report(&self, outfile: Option<&str>) {
-        match self.crashes() {
-            Ok(crash_report) => self.report(crash_report, outfile),
+        match self.crashes_from_app_center() {
+            Ok(crash_report) => self.write_report(crash_report, outfile),
             Err(x) => println!("Failed to get list of crashes with error: {:}", x),
         }
     }
@@ -75,9 +75,9 @@ impl CrashReporter {
     /// # let crash_list = TestHelper::crash_list_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None);
     /// let report = Report::new("version".to_string(), crash_list);
-    /// reporter.report(report, None)
+    /// reporter.write_report(report, None)
     /// ```
-    pub fn report(&self, report: Report, path: Option<&str>) {
+    pub fn write_report(&self, report: Report, path: Option<&str>) {
         let formatted_report = self.format_report(report);
         match path {
             Some(file_path) => self
@@ -104,8 +104,28 @@ impl CrashReporter {
             .register_template_string("crashes_template", self.crashes_template())
             .expect("Failed to register the crashes template.");
 
-        let mut crash_list_json = json!(report.crash_list);
+        let mut crash_list_json: serde_json::Value = json!(report.crash_list);
         let data = crash_list_json.as_object_mut().unwrap();
+        
+        // add threshold
+        if let Some(threshold) = self.threshold {
+            for (key, value) in data.iter_mut() {
+                println!("key: {:?}", key);
+                
+                let crashes = value.as_array_mut().unwrap();
+                
+                for object in crashes.iter_mut() {
+                    println!("{:?}", object);
+                    let crash = object.as_object_mut().unwrap();
+                    let percentage = (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
+                    crash.insert("percentage".to_string(),
+                        json!(format!("{:.2} %", percentage)));
+                    crash.insert("threshold".to_string(),
+                        json!(threshold));
+                }
+            }
+        }
+
         data.insert(
             "organization".to_string(),
             json!(self.organization.to_string()),
@@ -115,6 +135,12 @@ impl CrashReporter {
             json!(self.application.to_string()),
         );
         data.insert("version".to_string(), json!(report.version));
+        
+        if let Some(threshold_value) = &self.threshold {
+            println!("threshold provided: {:?}", threshold_value);
+            data.insert("threshold".to_string(), json!(threshold_value));
+        }
+
         template.render("crashes_template", &json!(data)).unwrap()
     }
 
@@ -126,6 +152,9 @@ This is the crash newsletter of v{{version}}.
 
 {{#each errorGroups}}
 First appeared on {{ firstOccurrence }} and occurred {{ count }} times in {{ appVersion }}/{{appBuild}} and affected {{deviceCount}} devices.
+{{~#if threshold}}
+{{ percentage }} of threshold reached: {{ count }}/{{threshold}}
+{{~ /if ~}}
 {{~#if exceptionFile}}
 File:    {{exceptionFile}}
 {{~ /if ~}}
@@ -152,7 +181,7 @@ The Mobile Releases Team
 This report was created using `recrep` for {{organization}}/{{application}}/{{version}}."#
     }
 
-    fn crashes(&self) -> Result<Report, &'static str> {
+    fn crashes_from_app_center(&self) -> Result<Report, &'static str> {
         let api = AppCenter::new(self.token.clone());
         self.crashes_from_api(api)
     }
