@@ -194,3 +194,13 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
         )
     }
 }
+
+#[test]
+//Formats a crash report including a threshold value
+fn test_report_formatting_supports_threshold() {
+
+    let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300));
+    let report = utils::test_helper::TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
+    let formatted_report = reporter.format_report(report);
+    assert_eq!(formatted_report.chars().count(), 1172)
+}
