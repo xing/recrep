@@ -110,12 +110,10 @@ impl CrashReporter {
         // add threshold
         if let Some(threshold) = self.threshold {
             for (key, value) in data.iter_mut() {
-                println!("key: {:?}", key);
                 
                 let crashes = value.as_array_mut().unwrap();
                 
                 for object in crashes.iter_mut() {
-                    println!("{:?}", object);
                     let crash = object.as_object_mut().unwrap();
                     let percentage = (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
                     crash.insert("percentage".to_string(),
@@ -137,7 +135,6 @@ impl CrashReporter {
         data.insert("version".to_string(), json!(report.version));
         
         if let Some(threshold_value) = &self.threshold {
-            println!("threshold provided: {:?}", threshold_value);
             data.insert("threshold".to_string(), json!(threshold_value));
         }
 
