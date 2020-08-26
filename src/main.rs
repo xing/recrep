@@ -1,7 +1,4 @@
-extern crate recrep;
-#[macro_use]
-extern crate clap;
-
+use clap::{crate_version, crate_authors};
 use clap::{App, Arg, ArgMatches};
 use recrep::CrashReporter;
 
