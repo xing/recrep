@@ -109,7 +109,7 @@ impl CrashReporter {
         
         // add threshold
         if let Some(threshold) = self.threshold {
-            for (key, value) in data.iter_mut() {
+            for (_key, value) in data.iter_mut() {
                 
                 let crashes = value.as_array_mut().unwrap();
                 
