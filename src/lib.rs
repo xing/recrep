@@ -116,8 +116,13 @@ impl CrashReporter {
                 for object in crashes.iter_mut() {
                     let crash = object.as_object_mut().unwrap();
                     let percentage = (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
-                    crash.insert("percentage".to_string(),
-                        json!(format!("{:.2} %", percentage)));
+                    if percentage >= 100.0 {
+                        crash.insert("percentage".to_string(),
+                            json!(format!("THRESHOLD EXCEEDED! {:.2} %", percentage)));
+                    } else {
+                        crash.insert("percentage".to_string(),
+                            json!(format!("{:.2} % of threshold reached", percentage)));
+                    }
                     crash.insert("threshold".to_string(),
                         json!(threshold));
                 }
@@ -150,7 +155,7 @@ This is the crash newsletter of v{{version}}.
 {{#each errorGroups}}
 First appeared on {{ firstOccurrence }} and occurred {{ count }} times in {{ appVersion }}/{{appBuild}} and affected {{deviceCount}} devices.
 {{~#if threshold}}
-{{ percentage }} of threshold reached: {{ count }}/{{threshold}}
+{{ percentage }}: {{ count }}/{{threshold}} (crashes/threshold)
 {{~ /if ~}}
 {{~#if exceptionFile}}
 File:    {{exceptionFile}}
@@ -202,5 +207,5 @@ fn test_report_formatting_supports_threshold() {
     let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300));
     let report = utils::test_helper::TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     let formatted_report = reporter.format_report(report);
-    assert_eq!(formatted_report.chars().count(), 1172)
+    assert_eq!(formatted_report.chars().count(), 1212)
 }
