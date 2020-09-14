@@ -118,13 +118,15 @@ impl CrashReporter {
                     let percentage = (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
                     if percentage >= 100.0 {
                         crash.insert("percentage".to_string(),
-                            json!(format!("THRESHOLD EXCEEDED! {:.2} %", percentage)));
+                            json!(format!("!! THRESHOLD EXCEEDED !! {:.2} %", percentage)));
+                        crash.insert("threshold_exceeded".to_string(),
+                            json!(threshold));
                     } else {
                         crash.insert("percentage".to_string(),
                             json!(format!("{:.2} % of threshold reached", percentage)));
+                        crash.insert("threshold".to_string(),
+                            json!(threshold));
                     }
-                    crash.insert("threshold".to_string(),
-                        json!(threshold));
                 }
             }
         }
@@ -153,6 +155,9 @@ Hello everyone!
 This is the crash newsletter of v{{version}}.
 
 {{#each errorGroups}}
+{{~#if threshold_exceeded}}
+{{ percentage }}: {{ count }}/{{threshold}} (crashes/threshold)
+{{/if}}
 First appeared on {{ firstOccurrence }} and occurred {{ count }} times in {{ appVersion }}/{{appBuild}} and affected {{deviceCount}} devices.
 {{~#if threshold}}
 {{ percentage }}: {{ count }}/{{threshold}} (crashes/threshold)
