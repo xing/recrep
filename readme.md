@@ -12,7 +12,7 @@ It is easiest to run _recrep_ with cargo. Clone this repository and prefix your 
 $ cargo run -- --help
     Finished dev [unoptimized + debuginfo] target(s) in 0.27s
      Running `target/debug/recrep --help`
-recrep 0.1.0
+recrep 0.1.1
 The Mobile Releases Team of XING SE <mobile_releases@xing.com>
 Recycled Crep: Look at your crashes.
 
@@ -25,10 +25,12 @@ FLAGS:
 OPTIONS:
     -a, --application <application>      The application identifier as seen in AppCenter urls.
     -g, --group <distribution-group>     Distribution group used to search for the latest version released into this
-                                         distribution group
+                                         distribution group.
     -c, --organization <organization>    The organization the app belongs to.
     -o, --outfile <outfile>              An optional filename to write the report to instead of printing it to the
                                          console.
+    -m, --threshold <threshold>          Set a threshold value determining a maximum amount of crashes and show a
+                                         percentage of how many percent are reached for each crash in the crash list.
     -t, --token <token>                  The AppCenter API token [env: RECREP_APPCENTER_API_TOKEN=]
     -v, --version <version>              The app version. If none is specified, the latest available version will be
                                          picked - be aware that the latest version might not have crashes yet.
