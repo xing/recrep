@@ -72,6 +72,11 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .short("m")
             .long("threshold")
             .required(false),
+        Arg::with_name("arithmetic-mean")
+            .help("Use the arithmetic mean as threshold value, and only show crashes exceeding this value.")
+            .takes_value(false)
+            .long("arithmetic-mean")
+            .required(false),
     ])
     .get_matches()
 }
