@@ -83,7 +83,8 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .help("Use the arithmetic mean as threshold value, and only show crashes exceeding this value.")
             .takes_value(false)
             .long("arithmetic-mean")
-            .required(false),
+            .required(false)
+            .conflicts_with("threshold"),
     ])
     .get_matches()
 }
