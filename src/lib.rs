@@ -49,7 +49,8 @@ impl CrashReporter {
         use_arithmetic_mean: bool,
     ) -> CrashReporter {
         CrashReporter {
-            token: token.to_string(), organization: organization.to_string(),
+            token: token.to_string(),
+            organization: organization.to_string(),
             application: application.to_string(),
             version: version.map(|s| s.to_string()),
             file_writer: &FileWriter {},
@@ -108,28 +109,51 @@ impl CrashReporter {
 
         let mut crash_list_json: serde_json::Value = json!(report.crash_list);
         let data = crash_list_json.as_object_mut().unwrap();
-        
+
         // add threshold
         if let Some(threshold) = self.threshold {
             for (_key, value) in data.iter_mut() {
-                
-                let crashes = value.as_array_mut().unwrap();
-                
-                for object in crashes.iter_mut() {
+                let all_crashes = value.as_array_mut().unwrap();
+
+                for object in all_crashes.iter_mut() {
                     let crash = object.as_object_mut().unwrap();
-                    let percentage = (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
+                    let percentage =
+                        (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
                     if percentage >= 100.0 {
-                        crash.insert("percentage".to_string(),
-                            json!(format!("!! THRESHOLD EXCEEDED !! {:.2} %", percentage)));
-                        crash.insert("threshold_exceeded".to_string(),
-                            json!(threshold));
+                        crash.insert(
+                            "percentage".to_string(),
+                            json!(format!("!! THRESHOLD EXCEEDED !! {:.2} %", percentage)),
+                        );
+                        crash.insert("threshold_exceeded".to_string(), json!(threshold));
                     } else {
-                        crash.insert("percentage".to_string(),
-                            json!(format!("{:.2} % of threshold reached", percentage)));
-                        crash.insert("threshold".to_string(),
-                            json!(threshold));
+                        crash.insert(
+                            "percentage".to_string(),
+                            json!(format!("{:.2} % of threshold reached", percentage)),
+                        );
+                        crash.insert("threshold".to_string(), json!(threshold));
                     }
                 }
+            }
+        }
+
+        if self.use_arithmetic_mean {
+            // sum of all crashes / amount of crashes
+            for (_key, value) in data.iter_mut() {
+                println!("value: {}", value);
+                let all_crashes = value.as_array_mut().unwrap();
+                let mut sum_of_all_crash_occurrence = 0;
+                for object in all_crashes.iter_mut() {
+                    let crash = object.as_object_mut().unwrap();
+                    let occurrences_of_crash = crash["count"].as_u64().unwrap();
+                    sum_of_all_crash_occurrence += occurrences_of_crash;
+                    println!("single: {}", occurrences_of_crash);
+                    println!("overall: {}", sum_of_all_crash_occurrence);
+                }
+                println!("amount of crash types: {}", all_crashes.len());
+                println!(
+                    "arithmetic mean: {}",
+                    sum_of_all_crash_occurrence / all_crashes.len() as u64
+                )
             }
         }
 
@@ -142,7 +166,7 @@ impl CrashReporter {
             json!(self.application.to_string()),
         );
         data.insert("version".to_string(), json!(report.version));
-        
+
         if let Some(threshold_value) = &self.threshold {
             data.insert("threshold".to_string(), json!(threshold_value));
         }
@@ -210,9 +234,10 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
 #[test]
 //Formats a crash report including a threshold value
 fn test_report_formatting_supports_threshold() {
-
     let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300));
-    let report = utils::test_helper::TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
+    let report = utils::test_helper::TestHelper::report_from_json(
+        "src/json_parsing/test_fixtures/two_crashes.json",
+    );
     let formatted_report = reporter.format_report(report);
     assert_eq!(formatted_report.chars().count(), 1212)
 }
