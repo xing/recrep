@@ -17,7 +17,13 @@ fn main() {
     let version = version.map(String::from);
     let group  = distribution_group.map(String::from);
     let crash_threshold = crash_threshold.map(|x| x.parse::<u64>().expect("Invalid number provided"));
-    let crash_reporter = CrashReporter::with_token(token, organization, application, version, group, crash_threshold);
+    let crash_reporter = CrashReporter::with_token(token,
+                                                   organization,
+                                                   application,
+                                                   version,
+                                                   group,
+                                                   crash_threshold,
+                                                   use_arithmetic_mean);
     crash_reporter.create_report(outfile);
 }
 

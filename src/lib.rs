@@ -22,6 +22,7 @@ pub struct CrashReporter {
     version: Option<String>,
     distribution_group: Option<String>,
     threshold: Option<u64>,
+    use_arithmetic_mean: bool,
     file_writer: &'static dyn Writing,
     printer: &'static dyn Printing,
 }
@@ -45,16 +46,17 @@ impl CrashReporter {
         version: Option<String>,
         distribution_group: Option<String>,
         threshold: Option<u64>,
+        use_arithmetic_mean: bool,
     ) -> CrashReporter {
         CrashReporter {
-            token: token.to_string(),
-            organization: organization.to_string(),
+            token: token.to_string(), organization: organization.to_string(),
             application: application.to_string(),
             version: version.map(|s| s.to_string()),
             file_writer: &FileWriter {},
             printer: &StdOutPrinter {},
             distribution_group: distribution_group,
             threshold: threshold,
+            use_arithmetic_mean: use_arithmetic_mean,
         }
     }
 
