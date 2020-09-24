@@ -12,6 +12,7 @@ fn main() {
     let application = matches.value_of("application").expect("Application is required");
     let distribution_group = matches.value_of("distribution-group");
     let crash_threshold = matches.value_of("threshold");
+    let use_arithmetic_mean = matches.is_present("arithmetic-mean");
 
     let version = version.map(String::from);
     let group  = distribution_group.map(String::from);
