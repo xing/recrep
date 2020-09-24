@@ -1,4 +1,4 @@
-use clap::{crate_version, crate_authors};
+use clap::{crate_authors, crate_version};
 use clap::{App, Arg, ArgMatches};
 use recrep::CrashReporter;
 
@@ -8,22 +8,29 @@ fn main() {
     let token = matches.value_of("token").expect("Token is required.");
     let version = matches.value_of("version");
     let outfile = matches.value_of("outfile");
-    let organization = matches.value_of("organization").expect("Organization is required");
-    let application = matches.value_of("application").expect("Application is required");
+    let organization = matches
+        .value_of("organization")
+        .expect("Organization is required");
+    let application = matches
+        .value_of("application")
+        .expect("Application is required");
     let distribution_group = matches.value_of("distribution-group");
     let crash_threshold = matches.value_of("threshold");
     let use_arithmetic_mean = matches.is_present("arithmetic-mean");
 
     let version = version.map(String::from);
-    let group  = distribution_group.map(String::from);
-    let crash_threshold = crash_threshold.map(|x| x.parse::<u64>().expect("Invalid number provided"));
-    let crash_reporter = CrashReporter::with_token(token,
-                                                   organization,
-                                                   application,
-                                                   version,
-                                                   group,
-                                                   crash_threshold,
-                                                   use_arithmetic_mean);
+    let group = distribution_group.map(String::from);
+    let crash_threshold =
+        crash_threshold.map(|x| x.parse::<u64>().expect("Invalid number provided"));
+    let crash_reporter = CrashReporter::with_token(
+        token,
+        organization,
+        application,
+        version,
+        group,
+        crash_threshold,
+        use_arithmetic_mean,
+    );
     crash_reporter.create_report(outfile);
 }
 
