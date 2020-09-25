@@ -115,8 +115,8 @@ impl CrashReporter {
             for (_key, value) in data.iter_mut() {
                 let all_crashes = value.as_array_mut().unwrap();
 
-                for object in all_crashes.iter_mut() {
-                    let crash = object.as_object_mut().unwrap();
+                for crash_obj in all_crashes.iter_mut() {
+                    let crash = crash_obj.as_object_mut().unwrap();
                     let percentage =
                         (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
                     if percentage >= 100.0 {
@@ -137,24 +137,30 @@ impl CrashReporter {
         }
 
         if self.use_arithmetic_mean {
+            let mut arithmetic_mean = 0;
             // sum of all crashes / amount of crashes
             for (_key, value) in data.iter_mut() {
-                println!("value: {}", value);
-                let all_crashes = value.as_array_mut().unwrap();
+                let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
                 let mut sum_of_all_crash_occurrence = 0;
+
+                // object: Object<Map<String, Value>>
                 for object in all_crashes.iter_mut() {
                     let crash = object.as_object_mut().unwrap();
                     let occurrences_of_crash = crash["count"].as_u64().unwrap();
                     sum_of_all_crash_occurrence += occurrences_of_crash;
-                    println!("single: {}", occurrences_of_crash);
-                    println!("overall: {}", sum_of_all_crash_occurrence);
                 }
-                println!("amount of crash types: {}", all_crashes.len());
-                println!(
-                    "arithmetic mean: {}",
-                    sum_of_all_crash_occurrence / all_crashes.len() as u64
-                )
+                arithmetic_mean = sum_of_all_crash_occurrence / all_crashes.len() as u64;
+
+                // remove crashes below arithmetic mean threshold
+                all_crashes.retain(|x| {
+                    let crash = x.as_object().unwrap();
+                    let occurrences_of_crash = crash["count"].as_u64().unwrap();
+
+                    // true keep, false remove
+                    occurrences_of_crash >= arithmetic_mean
+                });
             }
+            data.insert("arithmetic_mean".to_string(), json!(arithmetic_mean));
         }
 
         data.insert(
@@ -179,7 +185,9 @@ impl CrashReporter {
 Hello everyone!
 
 This is the crash newsletter of v{{version}}.
-
+{{~#if arithmetic_mean }}
+This Crash Report uses a threshold based on the arithmetic mean of all crashes ({{ arithmetic_mean }}). Crashes that occurred less than (<) {{ arithmetic_mean }} are excluded.
+{{/if}}
 {{#each errorGroups}}
 {{~#if threshold_exceeded}}
 {{ percentage }}: {{ count }}/{{threshold}} (crashes/threshold)
