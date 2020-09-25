@@ -20,7 +20,9 @@ USAGE:
     recrep [OPTIONS] --application <application> --organization <organization> --token <token>
 
 FLAGS:
-    -h, --help    Prints help information
+    --arithmetic-mean    Use the arithmetic mean as threshold value, and only show crashes exceeding this value.
+                         This flag is incompatible with `--threshold`.
+    -h, --help           Prints help information
 
 OPTIONS:
     -a, --application <application>      The application identifier as seen in AppCenter urls.
