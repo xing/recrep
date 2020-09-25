@@ -1,6 +1,6 @@
 [package]
 name = "recrep"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["The Mobile Releases Team of XING SE <mobile_releases@xing.com>"]
 edition = "2018"
 
