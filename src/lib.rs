@@ -122,16 +122,16 @@ impl CrashReporter {
                     if percentage >= 100.0 {
                         crash.insert(
                             "percentage".to_string(),
-                            json!(format!("!! THRESHOLD EXCEEDED !! {:.2} %", percentage)),
+                            json!(format!("{:.2}%", percentage)),
                         );
                         crash.insert("threshold_exceeded".to_string(), json!(threshold));
                     } else {
                         crash.insert(
                             "percentage".to_string(),
-                            json!(format!("{:.2} % of threshold reached", percentage)),
+                            json!(format!("{:.2}%", percentage)),
                         );
-                        crash.insert("threshold".to_string(), json!(threshold));
                     }
+                    crash.insert("threshold".to_string(), json!(threshold));
                 }
             }
         }
@@ -184,18 +184,21 @@ impl CrashReporter {
         r#"
 Hello everyone!
 
-This is the crash newsletter of v{{version}}.
+This is the crash newsletter of v{{version}}
 {{~#if arithmetic_mean }}
-This Crash Report uses a threshold based on the arithmetic mean of all crashes ({{ arithmetic_mean }}). Crashes that occurred less than (<) {{ arithmetic_mean }} are excluded.
+This Crash Report uses a threshold based on the arithmetic mean of all crashes ({{ arithmetic_mean }}). Crashes that occurred less than (<) {{ arithmetic_mean }} times are excluded.
 {{/if}}
 {{#each errorGroups}}
 {{~#if threshold_exceeded}}
-{{ percentage }}: {{ count }}/{{threshold}} (crashes/threshold)
+!! THRESHOLD EXCEEDED !! 
 {{/if}}
-First appeared on {{ firstOccurrence }} and occurred {{ count }} times in {{ appVersion }}/{{appBuild}} and affected {{deviceCount}} devices.
 {{~#if threshold}}
-{{ percentage }}: {{ count }}/{{threshold}} (crashes/threshold)
-{{~ /if ~}}
+{{ percentage }} ({{ count }}/{{threshold}}) of threshold reached. (crashes/threshold)
+{{ else }}
+{{ count }} times in {{ appVersion }} ({{appBuild}})
+{{/if}}
+Affected devices: {{deviceCount}} 
+First appeared on {{ firstOccurrence }}
 {{~#if exceptionFile}}
 File:    {{exceptionFile}}
 {{~ /if ~}}
