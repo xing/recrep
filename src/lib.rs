@@ -35,7 +35,7 @@ impl CrashReporter {
     /// use recrep::CrashReporter;
     ///
     /// let reporter = CrashReporter::with_token("abc", "org", "app", Some("1.2.3".to_string()),
-    /// Some("My-Distribution-Group".to_string()), None);
+    /// Some("My-Distribution-Group".to_string()), None, false);
     ///
     /// assert_eq!("abc", reporter.token);
     /// ```
@@ -76,7 +76,8 @@ impl CrashReporter {
     /// # use recrep::model::Report;
     /// #
     /// # let crash_list = TestHelper::crash_list_from_json("src/json_parsing/test_fixtures/two_crashes.json");
-    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None);
+    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None,
+    /// false);
     /// let report = Report::new("version".to_string(), crash_list);
     /// reporter.write_report(report, None)
     /// ```
@@ -96,10 +97,11 @@ impl CrashReporter {
     /// # use recrep::utils::test_helper::TestHelper;
     /// # use recrep::CrashReporter;
     /// #
-    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None);
+    /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None,
+    /// false);
     /// let report = TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let formatted_report = reporter.format_report(report);
-    /// assert_eq!(formatted_report.chars().count(), 1100)
+    /// assert_eq!(formatted_report.chars().count(), 1072)
     /// ```
     pub fn format_report(&self, report: Report) -> String {
         let mut template = Handlebars::new();
@@ -245,10 +247,10 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
 #[test]
 //Formats a crash report including a threshold value
 fn test_report_formatting_supports_threshold() {
-    let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300));
+    let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300), false);
     let report = utils::test_helper::TestHelper::report_from_json(
         "src/json_parsing/test_fixtures/two_crashes.json",
     );
     let formatted_report = reporter.format_report(report);
-    assert_eq!(formatted_report.chars().count(), 1212)
+    assert_eq!(formatted_report.chars().count(), 1132)
 }
