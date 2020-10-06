@@ -92,6 +92,11 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .long("arithmetic-mean")
             .required(false)
             .conflicts_with("threshold"),
+        Arg::with_name("show-operating-systems")
+            .help("Show the operating systems affected for each crash.")
+            .takes_value(false)
+            .long("show-operating-systems")
+            .required(false),
     ])
     .get_matches()
 }
