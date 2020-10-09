@@ -9,9 +9,10 @@ extern crate serde_json;
 extern crate handlebars;
 extern crate serde;
 
+use crate::model::{OperatingSystemCount, Report};
 use api::{AppCenter, API};
 use handlebars::Handlebars;
-use model::Report;
+use std::collections::HashMap;
 use utils::{FileWriter, Printing, StdOutPrinter, Writing};
 
 /// The `CrashReporter` is the heart of `recrep`.
@@ -23,6 +24,7 @@ pub struct CrashReporter {
     distribution_group: Option<String>,
     threshold: Option<u64>,
     use_arithmetic_mean: bool,
+    show_os_information: bool,
     file_writer: &'static dyn Writing,
     printer: &'static dyn Printing,
 }
@@ -47,6 +49,7 @@ impl CrashReporter {
         distribution_group: Option<String>,
         threshold: Option<u64>,
         use_arithmetic_mean: bool,
+        show_os_information: bool,
     ) -> CrashReporter {
         CrashReporter {
             token: token.to_string(),
@@ -58,12 +61,20 @@ impl CrashReporter {
             distribution_group: distribution_group,
             threshold: threshold,
             use_arithmetic_mean: use_arithmetic_mean,
+            show_os_information: show_os_information,
         }
     }
 
     pub fn create_report(&self, outfile: Option<&str>) {
         match self.crashes_from_app_center() {
-            Ok(crash_report) => self.write_report(crash_report, outfile),
+            Ok(mut crash_report) => {
+                if self.show_os_information {
+                    let error_groups = self.download_group_details_for_crashes(&crash_report);
+                    crash_report.assign_operating_system_details(Some(error_groups));
+                }
+
+                self.write_report(crash_report, outfile)
+            }
             Err(x) => println!("Failed to get list of crashes with error: {:}", x),
         }
     }
@@ -165,6 +176,34 @@ impl CrashReporter {
             data.insert("arithmetic_mean".to_string(), json!(arithmetic_mean));
         }
 
+        if self.show_os_information {
+            let value = &mut data["errorGroups"];
+            let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+
+            // object: Object<Map<String, Value>>
+            for object in all_crashes.iter_mut() {
+                let crash = object.as_object_mut().unwrap();
+                let oses = crash["operating_systems"].as_array().unwrap();
+                let formatted = oses
+                    .iter()
+                    .map(|os| {
+                        let os_string = os["operatingSystemName"].as_str().unwrap();
+                        let crash_amount = os["errorCount"].as_i64().unwrap();
+                        format!("{}: {}", os_string, crash_amount)
+                    })
+                    .enumerate()
+                    .fold(String::new(), |mut formatted, (idx, sub)| {
+                        formatted += sub.as_str();
+                        if idx + 1 != oses.len() {
+                            formatted += " | ";
+                        }
+                        formatted
+                    });
+
+                crash.insert("operatingSystemName".to_string(), json!(formatted));
+            }
+        }
+
         data.insert(
             "organization".to_string(),
             json!(self.organization.to_string()),
@@ -178,6 +217,11 @@ impl CrashReporter {
         if let Some(threshold_value) = &self.threshold {
             data.insert("threshold".to_string(), json!(threshold_value));
         }
+
+        data.insert(
+            "show_oses_affected".to_string(),
+            json!(self.show_os_information),
+        );
 
         template.render("crashes_template", &json!(data)).unwrap()
     }
@@ -194,12 +238,15 @@ This Crash Report uses a threshold based on the arithmetic mean of all crashes (
 {{~#if threshold_exceeded}}
 !! THRESHOLD EXCEEDED !! 
 {{/if}}
-{{~#if threshold}}
+{{~#if threshold }}
 {{ percentage }} ({{ count }}/{{threshold}}) of threshold reached. (crashes/threshold)
 {{ else }}
 {{ count }} times in {{ appVersion }} ({{appBuild}})
 {{/if}}
-Affected devices: {{deviceCount}} 
+Affected devices: {{ deviceCount }} 
+{{~#if operatingSystemName}}
+Affected OSes: {{ operatingSystemName }} => {{ count }}
+{{/if}}
 First appeared on {{ firstOccurrence }}
 {{~#if exceptionFile}}
 File:    {{exceptionFile}}
@@ -233,8 +280,9 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
     }
 
     fn crashes_from_api(&self, api: impl API) -> Result<Report, &'static str> {
-        let crash_manager = crashes::CrashManager {};
-        crash_manager.crash_list(
+        let crash_downloader = crashes::CrashManager {};
+
+        crash_downloader.crash_list(
             &api,
             self.organization.as_str(),
             self.application.as_str(),
@@ -242,12 +290,42 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
             self.distribution_group.clone(),
         )
     }
+
+    fn download_group_details_for_crashes(
+        &self,
+        crash_report: &Report,
+    ) -> HashMap<String, Vec<OperatingSystemCount>> {
+        let api = AppCenter::new(self.token.clone());
+        let crash_downloader = crashes::CrashManager {};
+
+        let mut error_groups: HashMap<String, Vec<OperatingSystemCount>> = HashMap::new();
+        for crash in crash_report.crash_list.crashes.iter() {
+            if let Some(error_group_id) = &crash.error_group_id {
+                match crash_downloader.error_group_details(
+                    &api,
+                    error_group_id.as_str(),
+                    self.application.as_str(),
+                    self.organization.as_str(),
+                ) {
+                    Ok(error_group) => {
+                        error_groups.insert(
+                            crash.error_group_id.as_ref().unwrap().to_string(),
+                            error_group.operating_systems,
+                        );
+                    }
+                    Err(e) => continue,
+                }
+            }
+        }
+        return error_groups;
+    }
 }
 
 #[test]
 //Formats a crash report including a threshold value
 fn test_report_formatting_supports_threshold() {
-    let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300), false);
+    let reporter =
+        CrashReporter::with_token("abc", "org name", "app id", None, None, Some(300), false);
     let report = utils::test_helper::TestHelper::report_from_json(
         "src/json_parsing/test_fixtures/two_crashes.json",
     );

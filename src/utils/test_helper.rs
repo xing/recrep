@@ -1,4 +1,4 @@
-use crate::json_parsing::CrashParser;
+use crate::json_parsing::crash_parsing;
 use crate::model::crash_list::CrashList;
 use crate::model::Report;
 use std::fs::File;
@@ -20,7 +20,7 @@ impl TestHelper {
         let mut crashes_json = String::new();
         file.read_to_string(&mut crashes_json)
             .expect("Failed to read fixture file into string");
-        let crash_list = CrashParser::crash_list_from_json(crashes_json.as_str()).unwrap();
+        let crash_list = crash_parsing::crash_list_from_json(crashes_json.as_str()).unwrap();
         crash_list
     }
 }

@@ -71,4 +71,32 @@ impl API for AppCenter {
             Err(_e) => Err("Failed to fetch error groups json"),
         }
     }
+
+    fn os_versions(
+        &self,
+        organization: &str,
+        application: &str,
+        error_group_id: &str,
+    ) -> Result<String, &'static str> {
+        let url = format!(
+            "https://api.appcenter.ms/{}/apps/{}/{}/errors/errorGroups/{}/operatingSystems",
+            API_VERSION, organization, application, error_group_id
+        );
+        let response = self
+            .client
+            .get(&url)
+            .header("X-API-Token", self.token.clone())
+            .header("accept", "application/json")
+            .send();
+        match response {
+            Ok(mut response) => {
+                let mut json = String::new();
+                match response.read_to_string(&mut json) {
+                    Ok(_j) => Ok(json),
+                    Err(_e) => Err("Failed to read response from API"),
+                }
+            }
+            Err(_e) => Err("Failed to fetch error groups json"),
+        }
+    }
 }

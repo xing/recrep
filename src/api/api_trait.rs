@@ -24,4 +24,11 @@ pub trait API {
         application: String,
         version: String,
     ) -> Result<String, &'static str>;
+
+    fn os_versions(
+        &self,
+        organization: &str,
+        application: &str,
+        error_group_id: &str,
+    ) -> Result<String, &'static str>;
 }

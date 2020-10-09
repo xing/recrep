@@ -1,3 +1,4 @@
+use crate::model::OperatingSystemCount;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -27,4 +28,15 @@ pub struct Crash {
     pub device_count: Option<u64>,
 
     pub count: Option<u64>,
+
+    pub operating_systems: Option<Vec<OperatingSystemCount>>,
+}
+
+impl Crash {
+    pub fn assign_operating_system_crash_distribution(
+        &mut self,
+        operating_systems: Vec<OperatingSystemCount>,
+    ) {
+        self.operating_systems = Some(operating_systems);
+    }
 }

@@ -51,4 +51,16 @@ impl API for MockAPI {
             _ => Err("Mock has no crashes"),
         }
     }
+
+    fn os_versions(
+        &self,
+        organization: &str,
+        application: &str,
+        error_group_id: &str,
+    ) -> Result<String, &'static str> {
+        match self.crashes.clone() {
+            Some(json) => Ok(json),
+            _ => Err("Mock has no crashes"),
+        }
+    }
 }
