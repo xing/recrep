@@ -1,7 +1,7 @@
 use crate::api::API;
-use crate::json_parsing::crash_parsing::CrashParser;
+use crate::json_parsing::crash_parsing;
 use crate::json_parsing::version_parsing::VersionListParser;
-use crate::model::{Report, VersionList};
+use crate::model::{ErrorGroup, Report, VersionList};
 
 /// The `CrashManager` is responsible to get crash data from its API.
 /// It transforms crash data into structs using a the `CrashParser`.
@@ -58,7 +58,7 @@ impl CrashManager {
         match api.crashes_json(organization, application, version.clone()) {
             Ok(json) => Ok(Report::new(
                 version,
-                CrashParser::crash_list_from_json(json.as_str()).unwrap(),
+                crash_parsing::crash_list_from_json(json.as_str()).unwrap(),
             )),
             Err(_e) => Err("Failed to get crashes json from API."),
         }
@@ -90,6 +90,27 @@ impl CrashManager {
             None => {
                 Err("💥 Failed to get the latest version. Cannot get crashes without a version.")
             }
+        }
+    }
+
+    pub fn error_group_details(
+        &self,
+        api: &impl API,
+        error_group_id: &str,
+        application: &str,
+        organization: &str,
+    ) -> Result<ErrorGroup, String> {
+        let response = api.os_versions(organization, application, error_group_id);
+        // json string
+        match response {
+            Ok(response) => {
+                // parsed json structs
+                let error_group =
+                    crash_parsing::error_group_details_from_json(response.as_str()).unwrap();
+                Ok(error_group)
+            }
+
+            Err(e) => Err(format!("Download failure {} for errorGroup", e)),
         }
     }
 }

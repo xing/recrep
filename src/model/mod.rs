@@ -1,14 +1,18 @@
-pub use self::crash::Crash;
 mod crash;
+pub use self::crash::Crash;
 
-pub use self::crash_list::CrashList;
 pub mod crash_list;
+pub use self::crash_list::CrashList;
 
-pub use self::version_list::VersionList;
 mod version_list;
+pub use self::version_list::VersionList;
 
-pub use self::version::Version;
 mod version;
+pub use self::version::Version;
 
-pub use self::report::Report;
 mod report;
+pub use self::report::Report;
+
+mod error_group_details;
+pub use self::error_group_details::ErrorGroup;
+pub use self::error_group_details::OperatingSystemCount;

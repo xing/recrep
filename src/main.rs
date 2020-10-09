@@ -22,6 +22,7 @@ fn main() {
     let group = distribution_group.map(String::from);
     let crash_threshold =
         crash_threshold.map(|x| x.parse::<u64>().expect("Invalid number provided"));
+    let show_os_information = matches.is_present("show-operating-systems");
     let crash_reporter = CrashReporter::with_token(
         token,
         organization,
@@ -30,6 +31,7 @@ fn main() {
         group,
         crash_threshold,
         use_arithmetic_mean,
+        show_os_information,
     );
     crash_reporter.create_report(outfile);
 }
