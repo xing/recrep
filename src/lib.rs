@@ -184,22 +184,42 @@ impl CrashReporter {
             for object in all_crashes.iter_mut() {
                 let crash = object.as_object_mut().unwrap();
                 let oses = crash["operating_systems"].as_array().unwrap();
-                let formatted = oses
+                let crash_amount_devices_overall = crash["deviceCount"].as_f64().unwrap();
+                let mut formatted = oses
                     .iter()
+                    .filter(|os| {
+                        let crash_amount_os = os["errorCount"].as_f64().unwrap();
+                        let percentage =
+                            (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
+                        percentage > 5.0
+                    })
                     .map(|os| {
+                        let crash_amount_os = os["errorCount"].as_f64().unwrap();
+                        let percentage =
+                            (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
                         let os_string = os["operatingSystemName"].as_str().unwrap();
-                        let crash_amount = os["errorCount"].as_i64().unwrap();
-                        format!("{}: {}", os_string, crash_amount)
+                        format!(
+                            "{}: {:.2}% ({} crashes) ",
+                            os_string, percentage, crash_amount_os
+                        )
                     })
                     .enumerate()
                     .fold(String::new(), |mut formatted, (idx, sub)| {
                         formatted += sub.as_str();
                         if idx + 1 != oses.len() {
-                            formatted += " | ";
+                            formatted += "| ";
                         }
+
                         formatted
                     });
 
+                // remove trailing "| ", as the previous 'fold' section can't know when
+                // to not put the suffix.
+                formatted.truncate(formatted.len() - 3);
+                let amount_of_affected_oses_shown = formatted.matches("|").count();
+                if amount_of_affected_oses_shown < crash["deviceCount"].as_u64().unwrap() as usize {
+                    formatted += " and more"
+                }
                 crash.insert("operatingSystemName".to_string(), json!(formatted));
             }
         }
@@ -242,11 +262,12 @@ This Crash Report uses a threshold based on the arithmetic mean of all crashes (
 {{ percentage }} ({{ count }}/{{threshold}}) of threshold reached. (crashes/threshold)
 {{ else }}
 {{ count }} times in {{ appVersion }} ({{appBuild}})
-{{/if}}
-Affected devices: {{ deviceCount }} 
-{{~#if operatingSystemName}}
-Affected OSes: {{ operatingSystemName }} => {{ count }}
-{{/if}}
+{{~/if}}
+{{#if operatingSystemName}}
+Affected OSes: {{operatingSystemName}} on {{ deviceCount }} overall affected devices
+
+{{~/if}}
+
 First appeared on {{ firstOccurrence }}
 {{~#if exceptionFile}}
 File:    {{exceptionFile}}
