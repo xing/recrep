@@ -16,13 +16,3 @@ pub struct OperatingSystemCount {
     #[serde(rename = "errorCount")]
     pub count: u64,
 }
-
-//impl ErrorGroup {
-//    pub fn new(id: String) -> ErrorGroup {
-//        ErrorGroup {
-//            id: id,
-//            operating_systems: HashMap::new(),
-//            count: 0,
-//        }
-//    }
-//}
