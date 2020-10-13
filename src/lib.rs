@@ -199,8 +199,8 @@ impl CrashReporter {
                             (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
                         let os_string = os["operatingSystemName"].as_str().unwrap();
                         format!(
-                            "{}: {:.2}% ({} crashes) ",
-                            os_string, percentage, crash_amount_os
+                            "{}: {} crashes ({:.2}%) ",
+                            os_string, crash_amount_os, percentage
                         )
                     })
                     .enumerate()
@@ -265,7 +265,6 @@ This Crash Report uses a threshold based on the arithmetic mean of all crashes (
 {{~/if}}
 {{~#if operatingSystemName}}
 Affected OSes: {{operatingSystemName}} on {{ deviceCount }} overall affected devices
-
 {{~/if}}
 
 First appeared on {{ firstOccurrence }}
