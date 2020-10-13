@@ -351,5 +351,5 @@ fn test_report_formatting_supports_threshold() {
         "src/json_parsing/test_fixtures/two_crashes.json",
     );
     let formatted_report = reporter.format_report(report);
-    assert_eq!(formatted_report.chars().count(), 1132)
+    assert_eq!(formatted_report.chars().count(), 1089)
 }
