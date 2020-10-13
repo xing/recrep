@@ -334,7 +334,7 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
                             error_group.operating_systems,
                         );
                     }
-                    Err(e) => continue,
+                    Err(_e) => continue,
                 }
             }
         }
