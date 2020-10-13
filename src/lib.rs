@@ -260,7 +260,7 @@ This Crash Report uses a threshold based on the arithmetic mean of all crashes (
 {{/if}}
 {{~#if threshold }}
 {{ percentage }} ({{ count }}/{{threshold}}) of threshold reached. (crashes/threshold)
-{{ else }}
+{{~else }}
 {{ count }} times in {{ appVersion }} ({{appBuild}})
 {{~/if}}
 {{#if operatingSystemName}}
