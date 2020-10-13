@@ -54,9 +54,9 @@ impl API for MockAPI {
 
     fn os_versions(
         &self,
-        organization: &str,
-        application: &str,
-        error_group_id: &str,
+        _organization: &str,
+        _application: &str,
+        _error_group_id: &str,
     ) -> Result<String, &'static str> {
         match self.crashes.clone() {
             Some(json) => Ok(json),
