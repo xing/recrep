@@ -60,7 +60,7 @@ impl API for MockAPI {
     ) -> Result<String, &'static str> {
         match self.crashes.clone() {
             Some(json) => Ok(json),
-            _ => Err("Mock has no crashes"),
+            _ => Err("Something went wrong. There are no crashes in the json."),
         }
     }
 }
