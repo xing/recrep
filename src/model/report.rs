@@ -17,15 +17,12 @@ impl Report {
 
     pub fn assign_operating_system_details(
         &mut self,
-        operating_systems: Option<HashMap<String, Vec<OperatingSystemCount>>>,
+        operating_systems: HashMap<String, Vec<OperatingSystemCount>>,
     ) {
-        if let Some(operating_systems_hash) = operating_systems {
-            for crash in &mut self.crash_list.crashes {
-                if let Some(group_id) = &crash.error_group_id {
-                    if let Some(oses) = operating_systems_hash.get(group_id) {
-                        let os_distribution: Vec<OperatingSystemCount> = oses.to_vec();
-                        crash.assign_operating_system_crash_distribution(os_distribution);
-                    }
+        for crash in &mut self.crash_list.crashes {
+            if let Some(group_id) = &crash.error_group_id {
+                if let Some(oses) = operating_systems.get(group_id) {
+                    crash.operating_systems = Some(oses.to_vec());
                 }
             }
         }

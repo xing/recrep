@@ -31,12 +31,3 @@ pub struct Crash {
 
     pub operating_systems: Option<Vec<OperatingSystemCount>>,
 }
-
-impl Crash {
-    pub fn assign_operating_system_crash_distribution(
-        &mut self,
-        operating_systems: Vec<OperatingSystemCount>,
-    ) {
-        self.operating_systems = Some(operating_systems);
-    }
-}
