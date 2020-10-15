@@ -333,7 +333,13 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
                             error_group.operating_systems,
                         );
                     }
-                    Err(_e) => continue,
+                    Err(e) => {
+                        println!(
+                            "No error group found, for ID: {}. Error: {}",
+                            error_group_id, e
+                        );
+                        continue;
+                    }
                 }
             }
         }
