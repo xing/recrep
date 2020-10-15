@@ -70,7 +70,7 @@ impl CrashReporter {
             Ok(mut crash_report) => {
                 if self.show_os_information {
                     let error_groups = self.download_group_details_for_crashes(&crash_report);
-                    crash_report.assign_operating_system_details(Some(error_groups));
+                    crash_report.assign_operating_system_details(error_groups);
                 }
 
                 self.write_report(crash_report, outfile)
@@ -187,29 +187,23 @@ impl CrashReporter {
                 let crash_amount_devices_overall = crash["deviceCount"].as_f64().unwrap();
                 let mut formatted = oses
                     .iter()
-                    .filter(|os| {
+                    .filter_map(|os| {
                         let crash_amount_os = os["errorCount"].as_f64().unwrap();
                         let percentage =
                             (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
-                        percentage > 5.0
-                    })
-                    .map(|os| {
-                        let crash_amount_os = os["errorCount"].as_f64().unwrap();
-                        let percentage =
-                            (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
-                        let os_string = os["operatingSystemName"].as_str().unwrap();
-                        format!(
-                            "{}: {} crashes ({:.2}%) ",
-                            os_string, crash_amount_os, percentage
-                        )
-                    })
-                    .enumerate()
-                    .fold(String::new(), |mut formatted, (idx, sub)| {
-                        formatted += sub.as_str();
-                        if idx + 1 != oses.len() {
-                            formatted += "| ";
+                        if percentage > 5.0 {
+                            let os_string = os["operatingSystemName"].as_str().unwrap();
+                            Some(format!(
+                                "{}: {} crashes ({:.2}%) ",
+                                os_string, crash_amount_os, percentage
+                            ))
+                        } else {
+                            None
                         }
-
+                    })
+                    .fold(String::new(), |mut formatted, sub| {
+                        formatted += sub.as_str();
+                        formatted += "| ";
                         formatted
                     });
 
