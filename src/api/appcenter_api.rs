@@ -65,10 +65,10 @@ impl API for AppCenter {
                 let mut json = String::new();
                 match response.read_to_string(&mut json) {
                     Ok(_j) => Ok(json),
-                    Err(_e) => Err("Failed to read response from API"),
+                    Err(e) => panic!("Failed to read response from API. Error: {}", e),
                 }
             }
-            Err(_e) => Err("Failed to fetch error groups json"),
+            Err(e) => panic!("Failed to fetch error groups json. Error: {}", e),
         }
     }
 
@@ -93,10 +93,10 @@ impl API for AppCenter {
                 let mut json = String::new();
                 match response.read_to_string(&mut json) {
                     Ok(_j) => Ok(json),
-                    Err(_e) => Err("Failed to read response from API"),
+                    Err(e) => panic!("Failed to read response from API. Error: {}", e),
                 }
             }
-            Err(_e) => Err("Failed to fetch error groups json"),
+            Err(e) => panic!("Failed to fetch error groups json. Error: {}", e),
         }
     }
 }
