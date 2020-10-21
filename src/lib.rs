@@ -246,7 +246,7 @@ Hello everyone!
 
 This is the crash newsletter of v{{version}}
 
-If your team is assigned to take a look at a certain crash but decides to not to be responsible for addressing the crash, please forward the crash
+If your team is assigned to take a look at a certain crash but decides to not to be responsible for handling the crash, please forward it 
 to another team or the community yourself.
 Please be proactive to raise awareness of crashes among the community - especially if your team can't address a crash at hand on its own.
 
