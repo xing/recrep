@@ -245,9 +245,14 @@ impl CrashReporter {
 Hello everyone!
 
 This is the crash newsletter of v{{version}}
-{{~#if arithmetic_mean }}
+
+If your team is assigned to take a look at a certain crash but decides to not to be responsible for handling the crash, please forward it 
+to another team or the community yourself.
+Please be proactive to raise awareness of crashes among the community - especially if your team can't address a crash at hand on its own.
+
+{{#if arithmetic_mean }}
 This Crash Report uses a threshold based on the arithmetic mean of all crashes ({{ arithmetic_mean }}). Crashes that occurred less than (<) {{ arithmetic_mean }} times are excluded.
-{{/if}}
+{{~/if}}
 {{#each errorGroups}}
 {{~#if threshold_exceeded}}
 !! THRESHOLD EXCEEDED !! 
