@@ -115,13 +115,37 @@ impl CrashReporter {
     /// assert_eq!(formatted_report.chars().count(), 1072)
     /// ```
     pub fn format_report(&self, report: Report) -> String {
-        let mut template = Handlebars::new();
-        template
-            .register_template_string("crashes_template", self.crashes_template())
-            .expect("Failed to register the crashes template.");
-
         let mut crash_list_json: serde_json::Value = json!(report.crash_list);
         let data = crash_list_json.as_object_mut().unwrap();
+
+        data.insert(
+            "organization".to_string(),
+            json!(self.organization.to_string()),
+        );
+        data.insert(
+            "application".to_string(),
+            json!(self.application.to_string()),
+        );
+        data.insert("version".to_string(), json!(report.version));
+
+        if data
+            .get("errorGroups")
+            .unwrap()
+            .as_array()
+            .unwrap()
+            .is_empty()
+        {
+            let mut template = Handlebars::new();
+            template
+                .register_template_string(
+                    "no_crashes_found_template",
+                    self.no_crashes_found_template(),
+                )
+                .expect("Failed to register the no crashes found template.");
+            return template
+                .render("no_crashes_found_template", &json!(data))
+                .unwrap();
+        }
 
         // add threshold
         if let Some(threshold) = self.threshold {
@@ -150,30 +174,7 @@ impl CrashReporter {
         }
 
         if self.use_arithmetic_mean {
-            let mut arithmetic_mean = 0;
-            // sum of all crashes / amount of crashes
-            for (_key, value) in data.iter_mut() {
-                let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
-                let mut sum_of_all_crash_occurrence = 0;
-
-                // object: Object<Map<String, Value>>
-                for object in all_crashes.iter_mut() {
-                    let crash = object.as_object_mut().unwrap();
-                    let occurrences_of_crash = crash["count"].as_u64().unwrap();
-                    sum_of_all_crash_occurrence += occurrences_of_crash;
-                }
-                arithmetic_mean = sum_of_all_crash_occurrence / all_crashes.len() as u64;
-
-                // remove crashes below arithmetic mean threshold
-                all_crashes.retain(|x| {
-                    let crash = x.as_object().unwrap();
-                    let occurrences_of_crash = crash["count"].as_u64().unwrap();
-
-                    // true keep, false remove
-                    occurrences_of_crash >= arithmetic_mean
-                });
-            }
-            data.insert("arithmetic_mean".to_string(), json!(arithmetic_mean));
+            self.add_arithmetic_mean(data);
         }
 
         if self.show_os_information {
@@ -218,16 +219,6 @@ impl CrashReporter {
             }
         }
 
-        data.insert(
-            "organization".to_string(),
-            json!(self.organization.to_string()),
-        );
-        data.insert(
-            "application".to_string(),
-            json!(self.application.to_string()),
-        );
-        data.insert("version".to_string(), json!(report.version));
-
         if let Some(threshold_value) = &self.threshold {
             data.insert("threshold".to_string(), json!(threshold_value));
         }
@@ -236,7 +227,10 @@ impl CrashReporter {
             "show_oses_affected".to_string(),
             json!(self.show_os_information),
         );
-
+        let mut template = Handlebars::new();
+        template
+            .register_template_string("crashes_template", self.crashes_template())
+            .expect("Failed to register the crashes template.");
         template.render("crashes_template", &json!(data)).unwrap()
     }
 
@@ -291,6 +285,47 @@ The Mobile Releases Team
 
 
 This report was created using `recrep` for {{organization}}/{{application}}/{{version}}."#
+    }
+
+    fn no_crashes_found_template<'a>(&self) -> &'a str {
+        r#"
+Hello everyone!
+
+This is the crash newsletter of v{{version}}
+
+Luckily this version does not have any crashes AppCenter does know about. Congratulations 🎉!
+
+This report was created using `recrep` for {{organization}}/{{application}}/{{version}}.
+"#
+    }
+
+    fn add_arithmetic_mean(&self, crash_data: &mut serde_json::Map<String, serde_json::Value>) {
+        // sum of all crashes / amount of crashes
+        // {"errorGroups": Array([…])}
+        let value = crash_data.get_mut("errorGroups").unwrap();
+        let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+        let mut sum_of_all_crash_occurrences = 0;
+
+        // object: Object<Map<String, Value>>
+        for object in all_crashes.iter_mut() {
+            let crash = object.as_object_mut().unwrap();
+            let occurrences_of_crash = crash["count"].as_u64().unwrap();
+            sum_of_all_crash_occurrences += occurrences_of_crash;
+        }
+        if sum_of_all_crash_occurrences == 0 {
+            return;
+        }
+        let arithmetic_mean = sum_of_all_crash_occurrences / all_crashes.len() as u64;
+
+        // remove crashes below arithmetic mean threshold
+        all_crashes.retain(|x| {
+            let crash = x.as_object().unwrap();
+            let occurrences_of_crash = crash["count"].as_u64().unwrap();
+
+            // true keep, false remove
+            occurrences_of_crash >= arithmetic_mean
+        });
+        crash_data.insert("arithmetic_mean".to_string(), json!(arithmetic_mean));
     }
 
     fn crashes_from_app_center(&self) -> Result<Report, &'static str> {
