@@ -37,7 +37,7 @@ impl CrashReporter {
     /// use recrep::CrashReporter;
     ///
     /// let reporter = CrashReporter::with_token("abc", "org", "app", Some("1.2.3".to_string()),
-    /// Some("My-Distribution-Group".to_string()), None, false);
+    /// Some("My-Distribution-Group".to_string()), None, false, false);
     ///
     /// assert_eq!("abc", reporter.token);
     /// ```
@@ -88,7 +88,7 @@ impl CrashReporter {
     /// #
     /// # let crash_list = TestHelper::crash_list_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None,
-    /// false);
+    /// false, false);
     /// let report = Report::new("version".to_string(), crash_list);
     /// reporter.write_report(report, None)
     /// ```
@@ -109,10 +109,10 @@ impl CrashReporter {
     /// # use recrep::CrashReporter;
     /// #
     /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None,
-    /// false);
+    /// false, false);
     /// let report = TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let formatted_report = reporter.format_report(report);
-    /// assert_eq!(formatted_report.chars().count(), 1072)
+    /// assert_eq!(formatted_report.chars().count(), 1352)
     /// ```
     pub fn format_report(&self, report: Report) -> String {
         let mut crash_list_json: serde_json::Value = json!(report.crash_list);
@@ -408,5 +408,24 @@ fn test_report_formatting_supports_threshold() {
         "src/json_parsing/test_fixtures/two_crashes.json",
     );
     let formatted_report = reporter.format_report(report);
-    assert_eq!(formatted_report.chars().count(), 1089)
+    assert_eq!(formatted_report.chars().count(), 1412)
+}
+
+#[test]
+fn test_report_template_if_no_crash_exists() {
+    let reporter = CrashReporter::with_token(
+        "abc",
+        "org name",
+        "app id",
+        None,
+        None,
+        Some(300),
+        false,
+        false,
+    );
+    let report = utils::test_helper::TestHelper::report_from_json(
+        "src/json_parsing/test_fixtures/no_crashes.json",
+    );
+    let formatted_report = reporter.format_report(report);
+    assert_eq!(formatted_report.chars().count(), 218)
 }
