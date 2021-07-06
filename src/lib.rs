@@ -149,28 +149,8 @@ impl CrashReporter {
 
         // add threshold
         if let Some(threshold) = self.threshold {
-            for (_key, value) in data.iter_mut() {
-                let all_crashes = value.as_array_mut().unwrap();
-
-                for crash_obj in all_crashes.iter_mut() {
-                    let crash = crash_obj.as_object_mut().unwrap();
-                    let percentage =
-                        (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
-                    if percentage >= 100.0 {
-                        crash.insert(
-                            "percentage".to_string(),
-                            json!(format!("{:.2}%", percentage)),
-                        );
-                        crash.insert("threshold_exceeded".to_string(), json!(threshold));
-                    } else {
-                        crash.insert(
-                            "percentage".to_string(),
-                            json!(format!("{:.2}%", percentage)),
-                        );
-                    }
-                    crash.insert("threshold".to_string(), json!(threshold));
-                }
-            }
+            self.add_threshold_values_to_individual_crashes(data, threshold);
+            data.insert("threshold".to_string(), json!(threshold));
         }
 
         if self.use_arithmetic_mean {
@@ -178,49 +158,7 @@ impl CrashReporter {
         }
 
         if self.show_os_information {
-            let value = &mut data["errorGroups"];
-            let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
-
-            // object: Object<Map<String, Value>>
-            for object in all_crashes.iter_mut() {
-                let crash = object.as_object_mut().unwrap();
-                let oses = crash["operating_systems"].as_array().unwrap();
-                let crash_amount_devices_overall = crash["deviceCount"].as_f64().unwrap();
-                let mut formatted = oses
-                    .iter()
-                    .filter_map(|os| {
-                        let crash_amount_os = os["errorCount"].as_f64().unwrap();
-                        let percentage =
-                            (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
-                        if percentage > 5.0 {
-                            let os_string = os["operatingSystemName"].as_str().unwrap();
-                            Some(format!(
-                                "{}: {} crashes ({:.2}%) ",
-                                os_string, crash_amount_os, percentage
-                            ))
-                        } else {
-                            None
-                        }
-                    })
-                    .fold(String::new(), |mut formatted, sub| {
-                        formatted += sub.as_str();
-                        formatted += "| ";
-                        formatted
-                    });
-
-                // remove trailing "| ", as the previous 'fold' section can't know when
-                // to not put the suffix.
-                formatted.truncate(formatted.len() - 3);
-                let amount_of_affected_oses_shown = formatted.matches("|").count();
-                if amount_of_affected_oses_shown < crash["deviceCount"].as_u64().unwrap() as usize {
-                    formatted += " and more"
-                }
-                crash.insert("operatingSystemName".to_string(), json!(formatted));
-            }
-        }
-
-        if let Some(threshold_value) = &self.threshold {
-            data.insert("threshold".to_string(), json!(threshold_value));
+            self.add_operating_system_information(data);
         }
 
         data.insert(
@@ -293,12 +231,84 @@ Hello everyone!
 
 This is the crash newsletter of v{{version}}
 
-Luckily this version does not have any crashes AppCenter does know about. Congratulations 🎉!
+Luckily this version does not have any crashes AppCenter knows about. Congratulations 🎉!
 
 This report was created using `recrep` for {{organization}}/{{application}}/{{version}}.
 "#
     }
 
+    fn add_threshold_values_to_individual_crashes(
+        &self,
+        crash_data: &mut serde_json::Map<String, serde_json::Value>,
+        threshold: u64,
+    ) {
+        let value = crash_data.get_mut("errorGroups").unwrap();
+        let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+
+        for crash_obj in all_crashes.iter_mut() {
+            let crash = crash_obj.as_object_mut().unwrap();
+            let percentage = (crash["count"].as_u64().unwrap() as f32 / threshold as f32) * 100f32;
+            if percentage >= 100.0 {
+                crash.insert(
+                    "percentage".to_string(),
+                    json!(format!("{:.2}%", percentage)),
+                );
+                crash.insert("threshold_exceeded".to_string(), json!(threshold));
+            } else {
+                // remove this to get rid of displaying crashes below threshold
+                crash.insert(
+                    "percentage".to_string(),
+                    json!(format!("{:.2}%", percentage)),
+                );
+            }
+            crash.insert("threshold".to_string(), json!(threshold));
+        }
+    }
+
+    fn add_operating_system_information(
+        &self,
+        crash_data: &mut serde_json::Map<String, serde_json::Value>,
+    ) {
+        let value = &mut crash_data["errorGroups"];
+        let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+
+        // object: Object<Map<String, Value>>
+        for object in all_crashes.iter_mut() {
+            let crash = object.as_object_mut().unwrap();
+            let oses = crash["operating_systems"].as_array().unwrap();
+            let crash_amount_devices_overall = crash["deviceCount"].as_f64().unwrap();
+            let mut formatted = oses
+                .iter()
+                .filter_map(|os| {
+                    let crash_amount_os = os["errorCount"].as_f64().unwrap();
+                    let percentage =
+                        (crash_amount_os / crash_amount_devices_overall) as f64 * 100.0;
+                    if percentage > 5.0 {
+                        let os_string = os["operatingSystemName"].as_str().unwrap();
+                        Some(format!(
+                            "{}: {} crashes ({:.2}%) ",
+                            os_string, crash_amount_os, percentage
+                        ))
+                    } else {
+                        None
+                    }
+                })
+                .fold(String::new(), |mut formatted, sub| {
+                    formatted += sub.as_str();
+                    formatted += "| ";
+                    formatted
+                });
+
+            // remove trailing "| ", as the previous 'fold' section can't know when
+            // to not put the suffix.
+            formatted.truncate(formatted.len() - 3);
+            let amount_of_affected_oses_shown = formatted.matches("|").count();
+            if amount_of_affected_oses_shown < crash["deviceCount"].as_u64().unwrap() as usize {
+                formatted += " and more"
+            }
+            crash.insert("operatingSystemName".to_string(), json!(formatted));
+        }
+    }
     fn add_arithmetic_mean(&self, crash_data: &mut serde_json::Map<String, serde_json::Value>) {
         // sum of all crashes / amount of crashes
         // {"errorGroups": Array([…])}
