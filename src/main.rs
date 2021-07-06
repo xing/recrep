@@ -83,7 +83,7 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .long("group")
             .required(false),
         Arg::with_name("threshold")
-            .help("Set a threshold value determining a maximum amount of crashes and show a percentage of how many percent are reached for each crash in the crash list.")
+            .help("Set a threshold value to determine a baseline amount of crashes. This max represents 100%. A percentage is shown of how many percent of this maximum is reached for each crash in the crash list. Crashes exceeding the threshold are marked as such.")
             .takes_value(true)
             .short("m")
             .long("threshold")
