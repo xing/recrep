@@ -6,7 +6,7 @@ _recrep_ uses the AppCenter API to compile a crash report for a given organizati
 
 ## How To
 
-It is  to run _recrep_ with cargo. Clone this repository and prefix your commands with `cargo run --`.
+The easiest way to run _recrep_ is using cargo. Clone this repository and prefix your commands with `cargo run --`.
 
 ```shell
 $ cargo run -- --help
