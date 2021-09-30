@@ -7,7 +7,7 @@ env:
 
 jobs:
   test:
-
+    name: Build and run available unit tests
     runs-on: ubuntu-latest
 
     steps:
