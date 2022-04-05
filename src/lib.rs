@@ -274,6 +274,7 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
     fn filter_out_errors(&self, crash_data: &mut serde_json::Map<String, serde_json::Value>) {
         let value = &mut crash_data["errorGroups"];
         let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+
         // exceptionAppCode is set to true on crashes and false on errors
         all_crashes.retain(|crash| crash["exceptionAppCode"] == true);
     }
@@ -423,6 +424,32 @@ fn test_report_formatting_supports_threshold() {
     );
     let formatted_report = reporter.format_report(report);
     assert_eq!(formatted_report.chars().count(), 1412)
+}
+
+#[test]
+fn test_report_formatting_supports_filtering_out_errors() {
+    let reporter = CrashReporter::with_token(
+        "abc",
+        "org name",
+        "app id",
+        None,
+        None,
+        Some(300),
+        false,
+        false,
+        true,
+    );
+    let report = utils::test_helper::TestHelper::report_from_json(
+        "src/json_parsing/test_fixtures/crashes.json",
+    );
+
+    let mut crash_list_json: serde_json::Value = json!(report.crash_list);
+    let data = crash_list_json.as_object_mut().unwrap();
+    reporter.filter_out_errors(data);
+
+    let value = &mut data["errorGroups"];
+    let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+    assert_eq!(all_crashes.len(), 26);
 }
 
 #[test]
