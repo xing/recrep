@@ -38,7 +38,7 @@ impl CrashReporter {
     /// use recrep::CrashReporter;
     ///
     /// let reporter = CrashReporter::with_token("abc", "org", "app", Some("1.2.3".to_string()),
-    /// Some("My-Distribution-Group".to_string()), None, false, false);
+    /// Some("My-Distribution-Group".to_string()), None, false, false, false);
     ///
     /// assert_eq!("abc", reporter.token);
     /// ```
@@ -91,7 +91,7 @@ impl CrashReporter {
     /// #
     /// # let crash_list = TestHelper::crash_list_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None,
-    /// false, false);
+    /// false, false, false);
     /// let report = Report::new("version".to_string(), crash_list);
     /// reporter.write_report(report, None)
     /// ```
@@ -112,7 +112,7 @@ impl CrashReporter {
     /// # use recrep::CrashReporter;
     /// #
     /// let reporter = CrashReporter::with_token("abc", "org name", "app id", None, None, None,
-    /// false, false);
+    /// false, false, false);
     /// let report = TestHelper::report_from_json("src/json_parsing/test_fixtures/two_crashes.json");
     /// let formatted_report = reporter.format_report(report);
     /// assert_eq!(formatted_report.chars().count(), 1352)
@@ -416,6 +416,7 @@ fn test_report_formatting_supports_threshold() {
         Some(300),
         false,
         false,
+        false,
     );
     let report = utils::test_helper::TestHelper::report_from_json(
         "src/json_parsing/test_fixtures/two_crashes.json",
@@ -433,6 +434,7 @@ fn test_report_template_if_no_crash_exists() {
         None,
         None,
         Some(300),
+        false,
         false,
         false,
     );
