@@ -27,6 +27,9 @@ pub struct Crash {
     #[serde(rename = "deviceCount")]
     pub device_count: Option<u64>,
 
+    #[serde(rename = "exceptionAppCode")]
+    pub exception_app_code: Option<bool>,
+
     pub count: Option<u64>,
 
     pub operating_systems: Option<Vec<OperatingSystemCount>>,
