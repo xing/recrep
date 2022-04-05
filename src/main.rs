@@ -17,7 +17,7 @@ fn main() {
     let distribution_group = matches.value_of("distribution-group");
     let crash_threshold = matches.value_of("threshold");
     let use_arithmetic_mean = matches.is_present("arithmetic-mean");
-
+    let filter_out_errors = matches.is_present("omit-errors");
     let version = version.map(String::from);
     let group = distribution_group.map(String::from);
     let crash_threshold =
@@ -32,6 +32,7 @@ fn main() {
         crash_threshold,
         use_arithmetic_mean,
         show_os_information,
+        filter_out_errors,
     );
     crash_reporter.create_report(outfile);
 }
@@ -98,6 +99,11 @@ fn matches_for_app<'a>(app: App<'a, '_>) -> ArgMatches<'a> {
             .help("Show the operating systems affected for each crash.")
             .takes_value(false)
             .long("show-operating-systems")
+            .required(false),
+        Arg::with_name("omit-errors")
+            .help("Filters out AppCenter \"Crashes\" that are classified as `Error`.")
+            .takes_value(false)
+            .long("omit-errors")
             .required(false),
     ])
     .get_matches()
