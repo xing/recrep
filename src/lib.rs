@@ -25,6 +25,7 @@ pub struct CrashReporter {
     threshold: Option<u64>,
     use_arithmetic_mean: bool,
     show_os_information: bool,
+    filter_out_errors: bool,
     file_writer: &'static dyn Writing,
     printer: &'static dyn Printing,
 }
@@ -50,6 +51,7 @@ impl CrashReporter {
         threshold: Option<u64>,
         use_arithmetic_mean: bool,
         show_os_information: bool,
+        filter_out_errors: bool,
     ) -> CrashReporter {
         CrashReporter {
             token: token.to_string(),
@@ -62,6 +64,7 @@ impl CrashReporter {
             threshold: threshold,
             use_arithmetic_mean: use_arithmetic_mean,
             show_os_information: show_os_information,
+            filter_out_errors: filter_out_errors,
         }
     }
 
@@ -117,6 +120,10 @@ impl CrashReporter {
     pub fn format_report(&self, report: Report) -> String {
         let mut crash_list_json: serde_json::Value = json!(report.crash_list);
         let data = crash_list_json.as_object_mut().unwrap();
+        
+        if self.filter_out_errors {
+            self.filter_out_errors(data);
+        }
 
         data.insert(
             "organization".to_string(),
@@ -147,7 +154,6 @@ impl CrashReporter {
                 .unwrap();
         }
 
-        // add threshold
         if let Some(threshold) = self.threshold {
             self.add_threshold_values_to_individual_crashes(data, threshold);
             data.insert("threshold".to_string(), json!(threshold));
@@ -263,6 +269,18 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
             }
             crash.insert("threshold".to_string(), json!(threshold));
         }
+    }
+
+    fn filter_out_errors(
+        &self,
+        crash_data: &mut serde_json::Map<String, serde_json::Value>,
+    ) {
+        let value = &mut crash_data["errorGroups"];
+        let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
+        println!("len: {}", all_crashes.len());
+        // exceptionAppCode is set to true on crashes and false on errors
+        all_crashes.retain(|crash| crash["exceptionAppCode"] == true);
+        println!("len: {}", all_crashes.len());
     }
 
     fn add_operating_system_information(
