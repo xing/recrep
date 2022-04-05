@@ -120,7 +120,7 @@ impl CrashReporter {
     pub fn format_report(&self, report: Report) -> String {
         let mut crash_list_json: serde_json::Value = json!(report.crash_list);
         let data = crash_list_json.as_object_mut().unwrap();
-        
+
         if self.filter_out_errors {
             self.filter_out_errors(data);
         }
@@ -271,10 +271,7 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
         }
     }
 
-    fn filter_out_errors(
-        &self,
-        crash_data: &mut serde_json::Map<String, serde_json::Value>,
-    ) {
+    fn filter_out_errors(&self, crash_data: &mut serde_json::Map<String, serde_json::Value>) {
         let value = &mut crash_data["errorGroups"];
         let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
         // exceptionAppCode is set to true on crashes and false on errors
