@@ -277,10 +277,8 @@ This report was created using `recrep` for {{organization}}/{{application}}/{{ve
     ) {
         let value = &mut crash_data["errorGroups"];
         let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
-        println!("len: {}", all_crashes.len());
         // exceptionAppCode is set to true on crashes and false on errors
         all_crashes.retain(|crash| crash["exceptionAppCode"] == true);
-        println!("len: {}", all_crashes.len());
     }
 
     fn add_operating_system_information(
