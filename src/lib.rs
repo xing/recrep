@@ -427,7 +427,7 @@ fn test_report_formatting_supports_threshold() {
 }
 
 #[test]
-fn test_report_formatting_supports_filtering_out_errors() {
+fn test_filtering_out_errors() {
     let reporter = CrashReporter::with_token(
         "abc",
         "org name",
@@ -450,6 +450,65 @@ fn test_report_formatting_supports_filtering_out_errors() {
     let value = &mut data["errorGroups"];
     let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
     assert_eq!(all_crashes.len(), 26);
+}
+
+#[test]
+fn test_report_formatting_supports_filtering_out_errors() {
+    let reporter = CrashReporter::with_token(
+        "abc",
+        "org name",
+        "app id",
+        None,
+        None,
+        Some(300),
+        false,
+        false,
+        true, // <- switch to omit-errors from report
+    );
+    let report = utils::test_helper::TestHelper::report_from_json(
+        "src/json_parsing/test_fixtures/crashes.json",
+    );
+
+    let mut crash_list_json: serde_json::Value = json!(report.crash_list);
+    let data = crash_list_json.as_object_mut().unwrap();
+    let amount_of_crashes_in_fixture = data.get("errorGroups")
+                                           .unwrap()
+                                           .as_array()
+                                           .unwrap().len();
+
+    let formatted_report = reporter.format_report(report);
+    let amount_of_formatted_crashes = formatted_report.matches("More on AppCenter").count();
+    assert!(amount_of_crashes_in_fixture != amount_of_formatted_crashes);
+}
+
+
+#[test]
+fn test_report_formatting_does_not_filter_out_errors() {
+    let reporter = CrashReporter::with_token(
+        "abc",
+        "org name",
+        "app id",
+        None,
+        None,
+        Some(300),
+        false,
+        false,
+        false, // <- switch to not omit errors from report
+    );
+    let report = utils::test_helper::TestHelper::report_from_json(
+        "src/json_parsing/test_fixtures/crashes.json",
+    );
+
+    let mut crash_list_json: serde_json::Value = json!(report.crash_list);
+    let data = crash_list_json.as_object_mut().unwrap();
+    let amount_of_crashes_in_fixture = data.get("errorGroups")
+                                           .unwrap()
+                                           .as_array()
+                                           .unwrap().len();
+
+    let formatted_report = reporter.format_report(report);
+    let amount_of_formatted_crashes = formatted_report.matches("More on AppCenter").count();
+    assert_eq!(amount_of_crashes_in_fixture, amount_of_formatted_crashes);
 }
 
 #[test]
