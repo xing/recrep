@@ -471,16 +471,12 @@ fn test_report_formatting_supports_filtering_out_errors() {
 
     let mut crash_list_json: serde_json::Value = json!(report.crash_list);
     let data = crash_list_json.as_object_mut().unwrap();
-    let amount_of_crashes_in_fixture = data.get("errorGroups")
-                                           .unwrap()
-                                           .as_array()
-                                           .unwrap().len();
+    let amount_of_crashes_in_fixture = data.get("errorGroups").unwrap().as_array().unwrap().len();
 
     let formatted_report = reporter.format_report(report);
     let amount_of_formatted_crashes = formatted_report.matches("More on AppCenter").count();
     assert!(amount_of_crashes_in_fixture != amount_of_formatted_crashes);
 }
-
 
 #[test]
 fn test_report_formatting_does_not_filter_out_errors() {
@@ -501,10 +497,7 @@ fn test_report_formatting_does_not_filter_out_errors() {
 
     let mut crash_list_json: serde_json::Value = json!(report.crash_list);
     let data = crash_list_json.as_object_mut().unwrap();
-    let amount_of_crashes_in_fixture = data.get("errorGroups")
-                                           .unwrap()
-                                           .as_array()
-                                           .unwrap().len();
+    let amount_of_crashes_in_fixture = data.get("errorGroups").unwrap().as_array().unwrap().len();
 
     let formatted_report = reporter.format_report(report);
     let amount_of_formatted_crashes = formatted_report.matches("More on AppCenter").count();
