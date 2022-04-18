@@ -2,7 +2,7 @@
   "nextLink": "/api/v0.1/apps/XING-SE-Organization/XING/errors/errorGroups?version=7.41.3&start=2019-05-15&end=2019-05-20&$orderby=count%20desc&$top=30&$token=123456789",
   "errorGroups": [
     {
-      "errorGroupId": "92620314u",
+      "errorGroupId": "92620314",
       "appVersion": "7.41.3",
       "appBuild": "10167",
       "count": 15,
