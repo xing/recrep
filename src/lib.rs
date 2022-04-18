@@ -449,7 +449,7 @@ fn test_filtering_out_errors() {
 
     let value = &mut data["errorGroups"];
     let all_crashes: &mut Vec<serde_json::Value> = value.as_array_mut().unwrap();
-    assert_eq!(all_crashes.len(), 26);
+    assert_eq!(all_crashes.len(), 29);
 }
 
 #[test]
