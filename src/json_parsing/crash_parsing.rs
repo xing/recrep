@@ -10,7 +10,7 @@ use serde_json;
 /// # use std::io::prelude::*;
 /// # use std::path::Path;
 /// use recrep::json_parsing::crash_parsing;
-/// let path = Path::new("src/json_parsing/test_fixtures/crashes.json");
+/// let path = Path::new("src/json_parsing/test_fixtures/api_response.json");
 /// let mut file = File::open(&path).expect("Unable to open test fixture");
 /// let mut crashes_json = String::new();
 /// file.read_to_string(&mut crashes_json)
