@@ -440,7 +440,7 @@ fn test_filtering_out_errors() {
         true,
     );
     let report = utils::test_helper::TestHelper::report_from_json(
-        "src/json_parsing/test_fixtures/crashes.json",
+        "src/json_parsing/test_fixtures/api_response.json",
     );
 
     let mut crash_list_json: serde_json::Value = json!(report.crash_list);
@@ -466,7 +466,7 @@ fn test_report_formatting_supports_filtering_out_errors() {
         true, // <- switch to omit-errors from report
     );
     let report = utils::test_helper::TestHelper::report_from_json(
-        "src/json_parsing/test_fixtures/crashes.json",
+        "src/json_parsing/test_fixtures/api_response.json",
     );
 
     let mut crash_list_json: serde_json::Value = json!(report.crash_list);
@@ -492,7 +492,7 @@ fn test_report_formatting_does_not_filter_out_errors() {
         false, // <- switch to not omit errors from report
     );
     let report = utils::test_helper::TestHelper::report_from_json(
-        "src/json_parsing/test_fixtures/crashes.json",
+        "src/json_parsing/test_fixtures/api_response.json",
     );
 
     let mut crash_list_json: serde_json::Value = json!(report.crash_list);
